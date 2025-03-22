@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+      }
+      main {
+        nav {
+          /* background-color: rgb(170, 109, 28);
+         */
+          height: 8em;
+          width: 100%;
+          border: 2px solid black;
+        }
+        #mainContainer {
+          background-color: aqua;
+          width: 100%;
+          height: 100%;
+        }
+      }
+    </style>
+
+    <title>Document</title>
+  </head>
+  <body>
+    <main class="container mb-4,bg-green">
+      <nav>hii</nav>
+      <div id="mainContainer">
+        <form action="/uploader" method="post" enctype="multipart/form-data">
+          <label for="getFile">Enter the file here</label>
+          <input type="file" name="file" id="getFile" required />
+          <button type="submit">Upload</button>
+        </form>
+      </div>
+    </main>
+  </body>
+</html>
