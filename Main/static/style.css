@@ -1,225 +1,190 @@
+/* Essential animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ===== Global Layout and Containers ===== */
 .upper_of_main {
     display: none;
 }
-#clusterImg{
+#clusterImg {
     display: none;
 }
 main {
     width: 85%;
-    height: auto;
     margin: auto;
     margin-top: 1.5%;
-    
-    .main_container {
-        height: 100%;
-        height: 36em;
-        margin-bottom: 2em;
-    }
-
-    #main_container1 {
-        width: 55%;
-        float: left;
-        background: linear-gradient(135deg, #f9f9f9, #e6f7ff, #ffe6f2);
-        /* background: rgba(255, 255, 255, 0.921); */
-        padding: 3em 5.5em;
-        border-bottom: black solid 0.9em;
-        box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.768);
-
-        li {
-            display: flex;
-
-            h2 {
-                /* font-family: 'candara'; */
-                color:  rgba(0, 0, 0, 0.578);
-                font-size: 5.8rem;
-                text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.792);
-                letter-spacing: 2.5px;
-                transition: transform 0.3s ease, color 0.3s ease;
-            }
-
-            h2:hover {
-                transform: scale(1.07);
-                color: rgb(0, 179, 255);
-            }
-
-            #withus {
-                /* color: rgb(0, 179, 255); */
-                font-size: 4em;
-                font-weight:bolder;
-                text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.616);
-                float: left;
-                transition: color 0.3s ease, border-right 0.3s ease, padding-right 0.3s ease, transform 0.3s ease;
-            }
-
-            #withus:hover {
-                color: rgba(0, 0, 0, 0.632);
-                border-right: 1px solid black;
-                padding-right: 0.5rem;
-                transform: translateX(5px);
-            }
-        }
-
-        #explorebuttonli {
-            float: right;
-
-            button {
-                padding: 0.7em 1.5em;
-                border-radius: 20px;
-                color: white;
-                background-color: rgba(0, 0, 0, 0.83);
-                font-family: 'Roboto';
-                border: none;
-                box-shadow: 0 2px 4px black;
-                text-shadow: 2px 2px 3px black;
-                transition: background-color 0.3s ease, padding 0.3s ease;
-            }
-
-            button:hover {
-                padding: 0.7em 0.8em;
-                border-right: 1.5em solid rgb(0, 179, 255);
-                background-color: rgba(0, 0, 0, 0.9);
-            }
-        }
-        #Quantum
-        {
-            h2{
-                color: rgb(0, 179, 255);
-            }
-        }
-    }
-
-
-    #main_container2 {
-        width: 45%;
-        float: right;
-        border-top: rgba(255, 255, 255, 0.921) solid 0.9em;
-        background-image: url(../static/paperbackground.png);
-        background-size: 100% 100%;
-        background-position: center;
-        background-repeat: no-repeat;
-        box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.76);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        #inputField {
-            width: 65%;
-            margin-top: -1em;
-            /* border: 2px solid white; */
-            border-radius: 30px;
-            height: 60%;
-            background-color: rgba(0, 0, 0, 0.341);
-            color: rgba(255, 255, 255, 0.907);
-            padding: 1.5rem 2rem;
-
-            h1 {
-                text-align: center;
-                letter-spacing: 2px;
-                word-spacing: 3px;
-                color: rgba(255, 255, 255, 0.907);
-                margin-bottom: -1rem;
-                transition: color 0.3s ease;
-            }
-
-            h1:hover {
-                color: #3f51b5;
-            }
-
-            label {
-                display: block;
-            }
-
-            #inputAndLabel {
-                text-align: center;
-                margin-top: 3rem;
-                font-size: larger;
-
-                input {
-                    display: none;
-                }
-
-                label {
-                    margin: 1rem 0;
-                    text-align: center;
-                }
-
-                .plus {
-                    border: 5px solid rgba(255, 255, 255, 0.907);
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    width: 2.7em;
-                    padding: 0.4em 0.6em;
-                    padding-bottom: 0.45em;
-                    border-radius: 50%;
-                    font-size: xx-large;
-                    font-weight: bolder;
-                    margin: auto;
-                    transition: border 0.3s ease, transform 0.3s ease, color 0.3s ease;
-                }
-
-                .plus:hover {
-                    color: rgb(0, 179, 255);
-                    border: 6px solid rgb(0, 179, 255);
-                    transform: scale(1.1);
-                }
-            }
-
-            button {
-                padding: 0.6rem 0;
-                border-radius: 20px;
-                display: block;
-                width: 19em;
-                margin: 3rem auto;
-                background-color: black;
-                color: rgba(255, 255, 255, 0.907);
-                font-weight: bolder;
-                transition: border-right 0.3s ease;
-            }
-
-            button:hover {
-                border-right: 30px solid rgb(0, 179, 255);
-            }
-        }
-    }
+}
+main .main_container {
+    height: 36em;
+    margin-bottom: 2em;
 }
 
+/* ===== First Main Section ===== */
+#main_container1 {
+    width: 55%;
+    float: left;
+    background: linear-gradient(135deg, #f9f9f9, #e6f7ff, #ffe6f2);
+    padding: 3em 5em;
+    border-bottom: black solid 0.9em;
+    box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.768);
+}
+#main_container1 li {
+    display: flex;
+}
+#main_container1 li h2 {
+    color: rgba(0, 0, 0, 0.578);
+    font-size: 5.5rem;
+    text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.792);
+    letter-spacing: 1px;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+#main_container1 li h2:hover {
+    transform: scale(1.07);
+    color: rgb(0, 179, 255);
+}
+#main_container1 li #withus {
+    font-size: 4em;
+    font-weight: bolder;
+    text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.616);
+    float: left;
+    transition: color 0.3s ease, border-right 0.3s ease, padding-right 0.3s ease, transform 0.3s ease;
+}
+#main_container1 li #withus:hover {
+    color: rgba(0, 0, 0, 0.632);
+    border-right: 1px solid black;
+    padding-right: 0.5rem;
+    transform: translateX(5px);
+}
+#main_container1 #explorebuttonli {
+    float: right;
+}
+#main_container1 #explorebuttonli button {
+    padding: 1em 1.5em;
+    border-radius: 20px;
+    color: rgba(255, 255, 255, 0.808);
+    background-color: rgba(0, 0, 0, 0.83);
+    font-family: 'Roboto';
+    border: none;
+    box-shadow: 0 2px 4px black;
+    text-shadow: 2px 2px 3px black;
+    transition: background-color 0.3s ease, padding 0.3s ease;
+}
+#main_container1 #explorebuttonli button:hover {
+    padding: 1em 0.8em;
+    border-right: 1.5em solid rgb(0, 179, 255);
+    background-color: rgba(0, 0, 0, 0.9);
+}
+#main_container1 #Quantum h2 {
+    color: rgb(0, 179, 255);
+}
+
+/* ===== Second Main Section ===== */
+#main_container2 {
+    width: 45%;
+    float: right;
+    border-top: rgba(255, 255, 255, 0.921) solid 0.9em;
+    background-image: url(../static/paperbackground.png);
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.76);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#main_container2 #inputField {
+    width: 65%;
+    margin-top: -1em;
+    border-radius: 30px;
+    height: 60%;
+    background-color: rgba(0, 0, 0, 0.341);
+    color: rgba(255, 255, 255, 0.907);
+    padding: 1.5rem 2rem;
+}
+#main_container2 #inputField h1 {
+    text-align: center;
+    letter-spacing: 2px;
+    word-spacing: 3px;
+    margin-bottom: -1rem;
+    transition: color 0.3s ease;
+}
+#main_container2 #inputField h1:hover {
+    color: #3f51b5;
+}
+#main_container2 #inputField label {
+    display: block;
+}
+#main_container2 #inputField #inputAndLabel {
+    text-align: center;
+    margin-top: 3rem;
+    font-size: larger;
+}
+#main_container2 #inputField #inputAndLabel input {
+    display: none;
+}
+#main_container2 #inputField #inputAndLabel label {
+    margin: 1rem 0;
+    text-align: center;
+}
+#main_container2 #inputField #inputAndLabel .plus {
+    border: 5px solid rgba(255, 255, 255, 0.907);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 2.7em;
+    padding: 0.4em 0.6em;
+    border-radius: 50%;
+    font-size: xx-large;
+    font-weight: bolder;
+    margin: auto;
+    transition: border 0.3s ease, transform 0.3s ease, color 0.3s ease;
+}
+#main_container2 #inputField #inputAndLabel .plus:hover {
+    color: rgb(0, 179, 255);
+    border: 6px solid rgb(0, 179, 255);
+    transform: scale(1.1);
+}
+#main_container2 #inputField button {
+    padding: 0.6rem 0;
+    border-radius: 20px;
+    display: block;
+    width: 19em;
+    margin: 3rem auto;
+    background-color: black;
+    color: rgba(255, 255, 255, 0.907);
+    font-weight: bolder;
+    transition: border-right 0.3s ease;
+}
+#main_container2 #inputField button:hover {
+    border-right: 30px solid rgb(0, 179, 255);
+}
+
+/* ===== Section: Second ===== */
 #second {
     width: 100%;
-    height: auto;
     padding: 2em 4em;
     margin-top: 39em;
-    background: rgba(255, 255, 255, 0.1); 
-    /* border-radius: 10px; */
     color: rgb(0, 179, 255);
     text-align: center;
-    /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); */
     transition: background 0.3s ease;
-    /* background-color: rgba(0, 0, 0, 0.71); */
 }
-
-/* Heading styling with hover scale animation */
 #second h1 {
     margin: 1em 0;
     font-size: 2rem;
     transition: color 0.3s ease, transform 0.3s ease;
-   
 }
 #second h1:hover {
     color: #3f51b5c5;
     transform: scale(1.05);
 }
 
-/* Improved data table with animations and fade-in effect */
+/* ===== Data Table Styling ===== */
 #dataTable {
     width: 80%;
-    /* height: 30%; */
-    max-height: 37em; /* Allows responsiveness */
-    /* height: 100%; */
-    overflow-x: auto;
-    overflow-y: auto;
-    -ms-overflow-style: none;  /* Hides scrollbar for IE, Edge */
-    scrollbar-width: none; 
+    max-height: 37em;
+    overflow: auto;
     font-size: 0.9rem;
     margin: 1.5em auto;
     border: 2px solid rgb(0, 179, 255);
@@ -229,102 +194,75 @@ main {
     border-radius: 10px;
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     animation: fadeIn 1s ease-out;
-    .UploadedData {
-        width: 100%;
-        border-collapse:separate;
-        font-size: 14px;
-        text-align: center;
-        border-radius: 7px;
-        overflow: hidden;
-        box-shadow: 0px 4px 10px rgba(255, 255, 255, 0.1);
-        background-color: #1E1E1E; /* Dark gray table background */
-        color: #ebeaea; /* Light gray text */
-    }
-
-    .UploadedData th, .UploadedData td {
-        padding: 8px;
-        border-bottom: 1px solid #333; /* Darker border */
-    }
-
-    .UploadedData th {
-        background-color: #333; /* Deep gray for headers */
-        color: #eaeaea; /* Gold text for a premium look */
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        text-align: center;
-    }
-
-    .UploadedData tr:nth-child(even) {
-        background-color: #292929; /* Slightly lighter gray for alternating rows */
-    }
-
-    .UploadedData tr:hover {
-        background-color: #3A3A3A; /* Smooth hover effect */
-        transition: 0.3s ease-in-out;
-    }
-
-    .UploadedData td {
-        color: #B0B0B0; /* Soft gray text */
-    }
-
-    .UploadedData caption {
-        font-size: 18px;
-        font-weight: bold;
-        margin-bottom: 10px;
-        color: #FFD700; /* Gold text for table title */
-    }
-
-    /* Responsive Table */
-    @media (max-width: 768px) {
-        .UploadedData {
-            font-size: 14px;
-        }
-        .UploadedData th, .UploadedData td {
-            padding: 8px;
-        }
-    }
 }
 #dataTable:hover {
     transform: translateY(-5px);
     border-color: #3f51b5;
     box-shadow: 0 8px 16px rgba(0, 179, 255, 0.3);
 }
-/* Keyframes for fade in animation */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-#third {
+#dataTable .UploadedData {
     width: 100%;
-    height: auto;
-    padding: 1em 4em;
-    margin: 0em auto;
-    background: linear-gradient(135deg, rgba(240,240,240,0.2), rgba(0,150,200,0.2));
-    animation: bgShift 10s infinite alternate ease-in-out;
-    /* border-radius: 10px; */
-    color: #005f73;
+    border-collapse: separate;
+    font-size: 14px;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    transition: background 0.4s ease;
+    border-radius: 7px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+    background-color: #1E1E1E;
+    color: #ebeaea;
+}
+#dataTable .UploadedData th,
+#dataTable .UploadedData td {
+    padding: 8px;
+    border-bottom: 1px solid #333;
+}
+#dataTable .UploadedData th {
+    background-color: #333;
+    color: #eaeaea;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+#dataTable .UploadedData tr:nth-child(even) {
+    background-color: #292929;
+}
+#dataTable .UploadedData tr:hover {
+    background-color: #3A3A3A;
+}
+#dataTable .UploadedData td {
+    color: #B0B0B0;
+}
+#dataTable .UploadedData caption {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #FFD700;
 }
 
+/* ===== Section: Third ===== */
+#third {
+    width: 100%;
+    padding: 1em 4em;
+    margin: 0 auto;
+    animation: bgShift 10s infinite alternate ease-in-out;
+    color: #005f73;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: background 0.4s ease;
+}
 #third h1 {
     margin: 1em 0;
     font-size: 2rem;
     transition: color 0.3s ease, transform 0.3s ease;
 }
-
 #third h1:hover {
     color: #3f51b5;
     transform: scale(1.05);
 }
-
 #clusteredTable {
     width: 80%;
     max-height: 37em;
-    overflow-x: auto;
-    overflow-y: auto;
+    overflow: auto;
     font-size: 0.9rem;
     margin: 1em auto;
     border: 2px solid rgb(0, 150, 200);
@@ -335,51 +273,46 @@ main {
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     animation: fadeIn 1s ease-out;
 }
-
 #clusteredTable:hover {
     transform: translateY(-5px);
     border-color: #3f51b5;
     box-shadow: 0 8px 16px rgba(0, 150, 200, 0.3);
 }
 
-/*footer started8*/
+/* ===== Footer ===== */
 .footer {
-    background: linear-gradient(to right, #111, #222); /* Gradient for depth */
+    background: linear-gradient(to right, #111, #222);
     color: #fff;
     text-align: center;
     padding: 20px;
     font-size: 14px;
     border-top: 2px solid #555;
 }
-
 .footer-container {
     max-width: 1000px;
     margin: auto;
 }
-
 .footer-links {
     margin: 10px 0;
 }
-
 .footer-links a {
-    color: #00c8ff; /* Neon Blue Effect */
+    color: #00c8ff;
     margin: 0 15px;
     text-decoration: none;
     font-weight: bold;
     transition: 0.3s ease-in-out;
 }
-
 .footer-links a:hover {
-    color: #ff00ff; /* Pink Hover Effect */
-    text-shadow: 0px 0px 10px #ff00ff;
+    color: #ff00ff;
+    text-shadow: 0 0 10px #ff00ff;
 }
-
 .footer-copy {
     margin-top: 10px;
     font-size: 12px;
     opacity: 0.7;
 }
 
+/* ===== Media Queries ===== */
 @media (min-width: 1660px) and (max-width: 3000px) {
     .upper_of_main {
         display: block;
@@ -391,213 +324,136 @@ main {
         font-size: 100px;
         margin-bottom: -0.62em;
         padding: 0.3em 0;
-        /* text-align: center; */
         font-weight: bold;
         text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.792);
-        /* border-radius: 20px; */
-        /* border: 1px solid blue; */
-
     }
-
     #upper1_of_main {
         float: left;
         margin-left: 5%;
-
-        p {
-            float: right;
-            margin-right: -0.75em;
-        }
     }
-
+    #upper1_of_main p {
+        float: right;
+        margin-right: -0.75em;
+    }
     #upper2_of_main {
-        /* float: right; */
         box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.768);
         margin-right: 5.1%;
-
-        p {
-            margin-left: 1.25em;
-        }
+    }
+    #upper2_of_main p {
+        margin-left: 1.25em;
     }
 }
-/* Mobile devices (max-width: 500px) */
-@media (max-width: 768px){
-    body{
-        height: auto;
+
+@media (max-width: 768px) {
+    body {
         width: 100%;
+        height: auto;
     }
-    #clusterImg{
-        background-color:  rgba(0, 179, 255, 0.46); 
-        height: 14em; 
+    #clusterImg {
+        background-color: rgba(0, 179, 255, 0.46);
+        height: 14em;
         width: 47em;
         margin: -0.5em 1.5em;
         display: block;
-        padding: 1em ; 
+        padding: 1em;
         border-radius: 30px;
-        /* box-shadow: 4px 4px 8px blue; */
-        img{
-            max-height: 100%;
-            height: auto;
-            width: 32em;
-            display: block;
-            margin: 0 auto;
-        }
     }
-    main{
-        /* background-color: #11111174; */
+    #clusterImg img {
+        max-height: 100%;
+        width: 32em;
+        display: block;
+        margin: 0 auto;
+    }
+    main {
         width: 50em;
-        height: auto;
         padding: 0 2em;
-
-        #main_container1{
-            float: none;
-            width: 100%;
-            border-radius: 80px;
-            border-top: 0.9em black solid;
-            border-bottom: none;
-            padding: 1em 3.5em;
-            margin-top: 7em;
-            
-            li{
-                h2{
-                    font-size: 7em;
-                    margin-bottom: -0.1em;
-                }
-                #withus{
-                    font-size: 3.5em;
-                    margin-top: 0.1em;
-                }
-            }
-            
-            #explorebuttonli{
-                button{
-                    font-size: larger;
-                }
-            }
-        }
-        #main_container2{
-            float: none;
-            width: 100%;
-            margin-bottom: -36em;
-            border-radius: 80px;
-            margin-top: 2em;
-            /* background: none; */
-            #inputField{
-                width: 90%;
-                height: 90%;
-                margin-bottom: -1em;
-                padding: 1em 2em;
-                font-size: xx-large;
-                h1{
-                    text-align: center;
-                }
-                #inputAndLabel{
-                    width: auto;
-                    margin-top: 2em;
-                    font-size: xx-large;
-                    text-align: center;
-                    .plus{
-                        font-size: 50px;
-                        text-align: center;
-                    }
-                }
-                button{
-                    width: 70%;
-                    height: 12%;
-                    background-color: rgb(0, 179, 255);
-                    font-size: x-large;
-                    margin-top: 3em;
-                    color: rgb(255, 255, 255);
-                    border-radius: 60px;
-                }
-                button:hover{
-                    border-right: 30px solid white;
-                }
-            }
-        }
     }
-    #second{
+    #main_container1 {
+        float: none;
+        width: 100%;
+        border-radius: 80px;
+        border-top: 0.9em black solid;
+        padding: 1em 3.5em;
+        margin-top: 7em;
+    }
+    #main_container1 li h2 {
+        font-size: 6em;
+    }
+    #main_container1 li #withus {
+        font-size: 3.5em;
+        margin-top: 0.1em;
+    }
+    #explorebuttonli button {
+        font-size: x-large;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #main_container2 {
+        float: none;
+        width: 100%;
+        margin-bottom: -38em;
+        border-radius: 80px;
+        margin-top: 2em;
+    }
+    #main_container2 #inputField {
+        width: 90%;
+        height: auto;
+        margin-bottom: -1em;
+        padding: 1em 2em;
+        font-size: 1.8em;
+    }
+    #main_container2 #inputField #inputAndLabel {
+        margin-top: 2em;
+        font-size: xx-large;
+        text-align: center;
+    }
+    #main_container2 #inputField #inputAndLabel .plus {
+        font-size: 50px;
+    }
+    #main_container2 #inputField button {
+        width: 70%;
+        height: 12%;
+        background-color: rgb(0, 179, 255);
+        font-size: x-large;
+        margin-top: 3em;
+        color: #fff;
+        border-radius: 60px;
+    }
+    #second {
         width: 50em;
         padding: 0.7em 0;
-        h1{
-            font-size: 45px;
-        }
-        #dataTable{
-            width: 90%;
-            font-size: x-large;
-            max-height: 30em;
-        }
     }
-    #third{
+    #second h1 {
+        font-size: 45px;
+    }
+    #dataTable {
+        width: 90%;
+        font-size: x-large;
+        max-height: 30em;
+    }
+    #third {
         width: 50em;
         padding: 1em 0;
-        h1{
-            font-size: 45px;
-        }
-        #clusteredTable{
-            width: 90%;
-            max-height: 30em;
-        }
+        margin-top: 0;
     }
-    footer{
+    #third h1 {
+        font-size: 45px;
+    }
+    #clusteredTable {
+        width: 90%;
+        max-height: 30em;
+    }
+    footer {
         width: 57em;
     }
-
-    /* Apply a smooth scrolling behavior */
     html {
         scroll-behavior: smooth;
+        scroll-snap-type: mandatory;
     }
-
-    /* Custom scrollbar styling for WebKit browsers */
-    ::-webkit-scrollbar {
-        width: 8px;
-        height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-        background: rgba(0,0,0,0.1);
-        border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb {
-        background: rgba(0, 179, 255, 0.5);
-        border-radius: 10px;
-        transition: background 0.3s ease;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-        background: rgba(0, 179, 255, 0.8);
-    }
-
-    /* Firefox scrollbar style */
-    * {
-        scrollbar-width: thin;
-        scrollbar-color: rgba(0, 179, 255, 0.5) rgba(0,0,0,0.1);
-    }
-    
-    /* Enhanced scrolling experience */
-    html {
-        scroll-behavior: smooth;
-        scroll-snap-type:  mandatory;
-    }
-    
-    /* Apply snap & transition effects to major containers */
-    main, footer, #second, #third {
-        scroll-snap-align: start;
-        transition: transform 0.6s ease, opacity 0.6s ease;
-    }
-    
-    /* Optional: a reusable class for elements that animate into view */
-    .animate-on-scroll {
-        opacity: 0;
-        transform: translateY(0px);
-        transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-    }
-    /* When an element gets the 'scrolled' class (using JS or :target trick), it animates */
-    .animate-on-scroll.scrolled {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    
-    /* Example: Enhance scrolling table transitions */
+    main, footer, #second, #third,
     #dataTable, #clusteredTable {
         scroll-snap-align: start;
-        transition: box-shadow 0.3s ease, transform 0.3s ease;
+        transition: transform 0.6s ease, opacity 0.6s ease;
     }
 }
