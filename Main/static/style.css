@@ -21,7 +21,7 @@ main {
         float: left;
         background: linear-gradient(135deg, #f9f9f9, #e6f7ff, #ffe6f2);
         /* background: rgba(255, 255, 255, 0.921); */
-        padding: 4em 7em;
+        padding: 3em 5.5em;
         border-bottom: black solid 0.9em;
         box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.768);
 
@@ -29,7 +29,7 @@ main {
             display: flex;
 
             h2 {
-                font-family: 'candara';
+                /* font-family: 'candara'; */
                 color:  rgba(0, 0, 0, 0.578);
                 font-size: 5.8rem;
                 text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.792);
@@ -44,10 +44,9 @@ main {
 
             #withus {
                 /* color: rgb(0, 179, 255); */
-                font-size: 50px;
+                font-size: 4em;
                 font-weight:bolder;
                 text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.616);
-                font-family: 'candara', 'Roboto';
                 float: left;
                 transition: color 0.3s ease, border-right 0.3s ease, padding-right 0.3s ease, transform 0.3s ease;
             }
@@ -114,8 +113,7 @@ main {
             padding: 1.5rem 2rem;
 
             h1 {
-                width: 8.3em;
-                margin: auto;
+                text-align: center;
                 letter-spacing: 2px;
                 word-spacing: 3px;
                 color: rgba(255, 255, 255, 0.907);
@@ -132,8 +130,7 @@ main {
             }
 
             #inputAndLabel {
-                width: 5em;
-                margin: auto;
+                text-align: center;
                 margin-top: 3rem;
                 font-size: larger;
 
@@ -143,6 +140,7 @@ main {
 
                 label {
                     margin: 1rem 0;
+                    text-align: center;
                 }
 
                 .plus {
@@ -203,7 +201,6 @@ main {
 /* Heading styling with hover scale animation */
 #second h1 {
     margin: 1em 0;
-    font-family: 'Roboto', sans-serif;
     font-size: 2rem;
     transition: color 0.3s ease, transform 0.3s ease;
    
@@ -314,7 +311,6 @@ main {
 
 #third h1 {
     margin: 1em 0;
-    font-family: 'Roboto', sans-serif;
     font-size: 2rem;
     transition: color 0.3s ease, transform 0.3s ease;
 }
@@ -433,13 +429,17 @@ main {
         background-color:  rgba(0, 179, 255, 0.46); 
         height: 14em; 
         width: 47em;
-        margin: 0 1.5em;
+        margin: -0.5em 1.5em;
         display: block;
-        padding: 2em ; 
+        padding: 1em ; 
         border-radius: 30px;
         /* box-shadow: 4px 4px 8px blue; */
         img{
-        width: 32em
+            max-height: 100%;
+            height: auto;
+            width: 32em;
+            display: block;
+            margin: 0 auto;
         }
     }
     main{
