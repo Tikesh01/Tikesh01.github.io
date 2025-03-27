@@ -491,10 +491,13 @@ main {
                     text-align: center;
                 }
                 #inputAndLabel{
+                    width: auto;
                     margin-top: 2em;
                     font-size: xx-large;
+                    text-align: center;
                     .plus{
                         font-size: 50px;
+                        text-align: center;
                     }
                 }
                 button{

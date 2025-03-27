@@ -9,7 +9,7 @@ body {
   height: auto;
   width: 100%;
   /* font-size: large; */
-  font-family: 'Montserrat';
+  font-family: 'Montserrat','candara','Roboto';
   background-color: rgba(0, 0, 0, 0.71);
   background: url(../static/Animated\ Shape.svg);
   background-repeat: no-repeat;
