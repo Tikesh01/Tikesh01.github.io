@@ -85,7 +85,7 @@ main .main_container {
     width: 45%;
     float: right;
     border-top: rgba(255, 255, 255, 0.921) solid 0.9em;
-    background-image: url(../static/paperbackground.png);
+    background-image: url(../static/paperbackground.webp);
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
@@ -156,6 +156,10 @@ main .main_container {
     color: rgba(255, 255, 255, 0.907);
     font-weight: bolder;
     transition: border-right 0.3s ease;
+    a{
+        color:  #fff;
+        text-decoration: none;
+    }
 }
 #main_container2 #inputField button:hover {
     border-right: 30px solid rgb(0, 179, 255);
@@ -313,7 +317,7 @@ main .main_container {
 }
 
 /* ===== Media Queries ===== */
-@media (min-width: 1650px) and (max-width: 3000px) {
+@media (min-width: 1750px) and (max-width: 3000px) {
     .upper_of_main {
         display: block;
         width: 45%;
@@ -419,10 +423,6 @@ main .main_container {
         margin-top: 2.5em;
         color: #fff;
         border-radius: 60px;
-        a{
-            color:  #fff;
-            text-decoration: none;
-        }
     }
     #main_container2 #inputField button:hover {
         border-right: #f9f9f9 1em solid;

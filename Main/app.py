@@ -4,8 +4,9 @@ import pandas as pd
 import numpy as np
 import csv
 from io import StringIO
-# from flask import Environment
+from jinja2 import Environment
 app = Flask(__name__)
+env = Environment(autoescape=True)
 
 @app.route('/')
 def interface():
