@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import csv
 from io import StringIO
-from openpyxl import Workbook
+# from flask import Environment
 app = Flask(__name__)
 
 @app.route('/')
@@ -15,7 +15,7 @@ def interface():
 os.makedirs("userFiles", exist_ok=True)#Exist_ok will check for file is created or not and prevent to create multiple time
 @app.route('/uploader', methods = ["POST"])
 def getFile( ):
-    listOfExtension  = ["csv","sql","exl","json","xml","txt"] #list of possibel extantion
+    listOfExtension  = ["csv","sql","xlas","json","xml","txt"] #list of possibel extantion
     file = request.files["file"] #this is the method to store a file into a variable
     filePath = os.path.join("userFiles", file.filename)
     nameOfFile = file.filename.split('.')#array of file name (n-1)th ele is extantion

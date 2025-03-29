@@ -99,7 +99,7 @@ main .main_container {
     margin-top: -1em;
     border-radius: 30px;
     height: 60%;
-    background-color: rgba(0, 0, 0, 0.341);
+    background-color: rgba(0, 0, 0, 0.327);
     color: rgba(255, 255, 255, 0.907);
     padding: 1.5rem 2rem;
 }
@@ -245,7 +245,7 @@ main .main_container {
     padding: 1em 4em;
     margin: 0 auto;
     animation: bgShift 10s infinite alternate ease-in-out;
-    color: #005f73;
+    color: rgb(0, 179, 255);
     text-align: center;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     transition: background 0.4s ease;
@@ -313,7 +313,7 @@ main .main_container {
 }
 
 /* ===== Media Queries ===== */
-@media (min-width: 1660px) and (max-width: 3000px) {
+@media (min-width: 1650px) and (max-width: 3000px) {
     .upper_of_main {
         display: block;
         width: 45%;
@@ -353,9 +353,9 @@ main .main_container {
         background-color: rgba(0, 179, 255, 0.46);
         height: 14em;
         width: 47em;
-        margin: -0.5em 1.5em;
+        margin: -1.5em 1.5em;
         display: block;
-        padding: 1em;
+        padding: 0.5em;
         border-radius: 30px;
     }
     #clusterImg img {
@@ -394,17 +394,17 @@ main .main_container {
         width: 100%;
         margin-bottom: -38em;
         border-radius: 80px;
-        margin-top: 2em;
+        margin-top: 2.8em;
+        background-color: #000000;
     }
     #main_container2 #inputField {
         width: 90%;
         height: auto;
-        margin-bottom: -1em;
         padding: 1em 2em;
         font-size: 1.8em;
     }
     #main_container2 #inputField #inputAndLabel {
-        margin-top: 2em;
+        margin-top: 2.5em;
         font-size: xx-large;
         text-align: center;
     }
@@ -413,12 +413,19 @@ main .main_container {
     }
     #main_container2 #inputField button {
         width: 70%;
-        height: 12%;
+        height: auto;
         background-color: rgb(0, 179, 255);
-        font-size: x-large;
-        margin-top: 3em;
+        font-size: xx-large;
+        margin-top: 2.5em;
         color: #fff;
         border-radius: 60px;
+        a{
+            color:  #fff;
+            text-decoration: none;
+        }
+    }
+    #main_container2 #inputField button:hover {
+        border-right: #f9f9f9 1em solid;
     }
     #second {
         width: 50em;
@@ -435,7 +442,7 @@ main .main_container {
     #third {
         width: 50em;
         padding: 1em 0;
-        margin-top: 0;
+        margin-top: -3em;
     }
     #third h1 {
         font-size: 45px;
