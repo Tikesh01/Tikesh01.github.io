@@ -464,3 +464,70 @@ main .main_container {
         transition: transform 0.6s ease, opacity 0.6s ease;
     }
 }
+
+/* Responsive styles for devices between 769px and 1400px */
+@media (min-width: 769px) and (max-width: 1400px) {
+    main {
+        width: 90%;
+        margin: auto;
+        padding: 0 2em;
+    }
+
+    #main_container1 {
+        width: 100%;
+        float: none;
+        padding: 2em;
+        margin-top: 2em;
+        border-bottom: 0.6em solid black; /* Adjusted border */
+        background: none;
+        box-shadow: none;
+    }
+    #main_container1 li h2 {
+        font-size: 5rem;
+        text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.6);
+        font-weight: lighter;
+        color: rgba(255, 255, 255, 0.808);
+    }
+    #main_container1 li #withus {
+        font-size: 2.5rem;
+        margin-top: 0.2em;
+    }
+    #explorebuttonli button {
+        font-size: 1.2rem;
+        padding: 0.8em 1em;
+        margin: 1em auto;
+    }
+
+    #main_container2 {
+        width: 100%;
+        float: none;
+        padding: 2em;
+        margin-top: 2em;
+        background-size: cover;
+        background: none;
+        box-shadow: none;
+      
+    }
+    #main_container2 #inputField {
+        width: 100%;
+        padding: 1em;
+        font-size: 1.2rem;
+        height: auto;
+    }
+
+    #second, #third {
+        width: 100%;
+        padding: 1em 2em;
+        margin-top: 2em;
+    }
+    #dataTable, #clusteredTable {
+        width: 100%;
+        max-height: 30em;
+        font-size: 1rem;
+    }
+
+    .footer {
+        font-size: 13px;
+        padding: 15px;
+    }
+}
