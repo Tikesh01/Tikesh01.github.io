@@ -7,7 +7,7 @@ from io import StringIO
 from jinja2 import Environment
 app = Flask(__name__)
 env = Environment(autoescape=True)
-
+MainDF = pd.DataFrame()
 @app.route('/')
 def interface():
     return render_template('index.html')
@@ -16,33 +16,57 @@ def interface():
 os.makedirs("userFiles", exist_ok=True)#Exist_ok will check for file is created or not and prevent to create multiple time
 @app.route('/uploader', methods = ["POST"])
 def getFile( ):
-    listOfExtension  = ["csv","sql","xlas","json","xml","txt"] #list of possibel extantion
+    listOfExtension  = ["csv","xsl","sql","sqlquery","xlsx","json","txt"] #list of possibel extantion
     file = request.files["file"] #this is the method to store a file into a variable
     filePath = os.path.join("userFiles", file.filename)
     nameOfFile = file.filename.split('.')#array of file name (n-1)th ele is extantion
     uploadedFileExtension = nameOfFile[len(nameOfFile)-1]
     if uploadedFileExtension in listOfExtension:
         file.save(filePath)
-        with open(filePath,"r",encoding= "utf-8") as file: # mode "r" and encoding helps to access a file as a string
-            fileContent = file.read()# Read is a method to get the content of the file
-            return printer(fileContent,uploadedFileExtension,filePath)     
-        # return render_template("index.html", massage=f"File uploaded succesfully")
+        # with open(filePath,"r",encoding= "utf-8") as file: # mode "r" and encoding helps to access a file as a string
+        fileContent = file.read()# Read is a method to get the content of the file
+         #if The uploaded file is CSV
+        return printTable(uploadedFileExtension,filePath)
     else:
         return render_template("index.html", error=f"only {listOfExtension} files are allowed")
 
-def printer(fileC,type,thefile):
-    #if The uploaded file is CSV
+def printTable(type,filePath):
     if type == "csv":
-        # rows = np.array(fileC.split("\n"))# file ka array sirf row me 1d array
-        # noOfRows = rows.__len__()#toatal rows 
-        # cols = np.array(rows[0].split(','))#rows me colums 
-        # noOfCols = cols.__len__()# total colums
-        # array = np.array(fileC.split(',')).reshape(noOfRows,noOfCols)
-        # return render_template("index.html",data = f"{array}\n")
-        df = pd.read_csv(thefile)
+        df = pd.read_csv(filePath)
         df = df.dropna(how="all")  # Remove empty rows
+        MainDF = df
         return render_template("index.html", table=df.to_html(classes="UploadedData", border=0))
-        # return render_template("index.html", table = df.to_html(classes="",col_space="2em"))
+    if type == "xls" or "xlsx":
+        pass
+    if type == "sql":
+        pass
+    if type == "json":
+        pass
+    if type == "txt":
+        pass
+    
+# Now time to cluster the file(data)
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.cluster import KMeans
+@app.route("/clusteringStart", methods=["POST"])
+def dataClustering():#FileToCluster is DF which is created to print through html table
+    #Process of creating appropriate DF to apply KMeans
+    noOfClusters = request.form.get("noOfCluster")
+    fileToClusterNumaric = MainDF.select_dtypes(include=["float64", "int64"])# to Change the string type columns to int or float because KMeans() needs int or float type colum to mesure distance
+    scaler = StandardScaler()
+    scaled_data = (scaler.fit_transform(pd.DataFrame(fileToClusterNumaric)))
+    
+    # Process of applying kMeans
+    Kmeans = KMeans(n_clusters = noOfClusters, random_state=42)
+    Kmeans_lables = Kmeans.fit_predict(scaled_data)
+    # hence means returns a array So need to change into Dataframe
+    clusteredDF = pd.DataFrame(Kmeans_lables)
+    return render_template("index.html", clusteredData = clusteredDF.to_html(classes="UploadedclusteredData", border=0))
+ 
+# #Delete file after clustering
+# def deleteFile():
+#     os.remove("userFiles")
     
 if __name__ == "__main__":
     app.run(debug = True)

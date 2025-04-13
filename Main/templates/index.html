@@ -12,7 +12,7 @@
 
 
   <link rel= "shortcut icon" type="icon/image" href="../static/clusterLogo-removebg-preview.webp" />
-  <title>Qubit Sort</title>
+  <title>QUBITSORT - Accelerate Growth with Quantum clustering</title>
 </head>
   <body>
     <ul type="none" id="header_and_navbaar">
@@ -66,7 +66,7 @@
             <li><h2>G</h2><h2>r</h2><h2>o</h2><h2>w</h2><h2>t</h2><h2>h</h2><span>.....</span><h2>w</h2><h2>i</h2><h2>t</h2><h2>h</h2></li>
             <li id="Quantum"><h2>Q</h2><h2>u</h2><h2>a</h2><h2>n</h2><h2>t</h2><h2>u</h2><h2>m</h2></li>
             <li><h1 id="withus">Clustering</h2></li>
-            <li id="explorebuttonli"><button>Explore</button></li>
+            <li id="explorebuttonli"><button link="#features">Explore</button></li>
           </ul>
         </div>
       </main>
@@ -75,14 +75,14 @@
         </div>
       <main>
         <div class="main_container" id="main_container2">
-          <form action="/uploader" method="post" enctype="multipart/form-data" id="inputField">
+          <form action="/uploader" method="Post" enctype="multipart/form-data" id="inputField">
             <h1>Upload Your File</h2>
             <div id="inputAndLabel">
               <label >Choose File</label>
               <label for="getFile" class="plus">+</label>
               <input type="file" name="file" id="getFile" required />
             </div>
-            <button type="submit"><a href="#dataTable">Upload</a></button>
+            <button type="submit"><a href="#second">Upload</a></button>
           </form>
             <h4 style="color: rgb(202, 86, 86);  position: absolute; margin-bottom: -25em; ;">{{error}}</h4>
         </div>
@@ -100,21 +100,63 @@
           {% endif %}
         </div>
       </div>
-
+      {% if table %}
+      <div id="middle">
+        <form id="inputNumberOfClusters" method="Post" action="/clusteringStart" enctype="multipart/form-data">
+          <label id="clusterNo" for="noOfClusters"><h3>How many Clusters?</h3></lable>
+          <input type="number" id="noOfClusters" name="noOfCluster" required placeholder="eg. 12, 30" />
+          <button type="submit">Start clustering</button>
+        </form>
+      </div>
+      {% else %}
+      {% endif %}
       <!-- New third container for clustered data -->
       <div id="third" class="data">
         <h1>Clustered Data</h1>
         <div id="clusteredTable">
-          {% if clustered %}
-              {{ clustered|safe }}
+          {% if clusteredData %}
+              {{ clusteredData|safe }}
           {% else %}
               <p style="text-align: center; color: gray; font-size: larger; margin: 4em 0;">
                   <label for="getClusteredFile">Upload a file to see clustered data here.</label>
               </p>
-              <p style="color: rgb(217, 76, 76);">{{error}}</p>
+              <p style="color: rgb(217, 76, 76);">{{error2}}</p>
           {% endif %}
         </div>
       </div>
+      <section class="features-section" id="features">
+        <div class="features-container">
+          <h2 class="section-title">Why Choose Our Quantum Clustering?</h2>
+          <p class="tagline">Your data has answers — we help you find them.</p>
+      
+          <div class="features-grid">
+            <div class="feature-box">
+              <h3>🧠 Smart Clustering</h3>
+              <p>Detects hidden patterns in your data using quantum-powered insights.</p>
+            </div>
+            <div class="feature-box">
+              <h3>📁 Easy CSV Upload</h3>
+              <p>No tech knowledge needed. Just upload your file and go.</p>
+            </div>
+            <div class="feature-box">
+              <h3>📊 Visual Results</h3>
+              <p>See customer groups in clean, interactive tables & charts.</p>
+            </div>
+            <div class="feature-box">
+              <h3>🎯 Targeted Insights</h3>
+              <p>Find the right customer segment to boost your sales.</p>
+            </div>
+            <div class="feature-box">
+              <h3>⚡ Fast Processing</h3>
+              <p>Large files? No problem — Quantum makes it blazing fast.</p>
+            </div>
+            <div class="feature-box">
+              <h3>🕹️ Simple UI</h3>
+              <p>Built for small businesses — clean, intuitive, and fast.</p>
+            </div>
+          </div>
+        </div>
+      </section>      
       <footer class="footer">
         <div class="footer-container">
             <p>🚀 Powered by Quantum Intelligence | Fast & Smart Clustering</p>
