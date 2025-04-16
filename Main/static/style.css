@@ -26,17 +26,18 @@ main .main_container {
     width: 55%;
     float: left;
     background: linear-gradient(135deg, #f9f9f9, #e6f7ff, #ffe6f2);
+    background: rgb(235, 235, 235);
     padding: 3em 5em;
-    border-bottom: black solid 0.9em;
-    box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.768);
+    /* border-bottom: black solid 0.9em; */
+    /* box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.768); */
 }
 #main_container1 li {
     display: flex;
 }
 #main_container1 li h2 {
-    color: rgba(0, 0, 0, 0.578);
+    color: rgba(0, 0, 0, 0.759);
     font-size: 5.5rem;
-    text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.792);
+    /* text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.792); */
     letter-spacing: 1px;
     transition: transform 0.3s ease, color 0.3s ease;
 }
@@ -47,9 +48,11 @@ main .main_container {
 #main_container1 li #withus {
     font-size: 4em;
     font-weight: bolder;
-    text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.616);
+    /* text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.616); */
     float: left;
     transition: color 0.3s ease, border-right 0.3s ease, padding-right 0.3s ease, transform 0.3s ease;
+    color: rgba(0, 0, 0, 0.842);
+
 }
 #main_container1 li #withus:hover {
     color: rgba(0, 0, 0, 0.632);
@@ -67,9 +70,9 @@ main .main_container {
     background-color: rgba(0, 0, 0, 0.83);
     font-family: 'Roboto';
     border: none;
-    box-shadow: 0 2px 4px black;
-    text-shadow: 2px 2px 3px black;
-    transition: background-color 0.3s ease, padding 0.3s ease;
+    /* box-shadow: 0 2px 4px black; */
+    /* text-shadow: 2px 2px 3px black; */
+    transition: background-color 1s ease, padding 1s ease;
 }
 #main_container1 #explorebuttonli button:hover {
     padding: 1em 0.8em;
@@ -84,24 +87,27 @@ main .main_container {
 #main_container2 {
     width: 45%;
     float: right;
-    border-top: rgba(255, 255, 255, 0.921) solid 0.9em;
+    border-top: rgb(235, 235, 235) solid 0.9em;
+    border-bottom: rgb(235, 235, 235) solid 0.9em;
     background-image: url(../static/paperbackground.webp);
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
-    box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.76);
+    /* box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.76); */
     display: flex;
     justify-content: center;
     align-items: center;
 }
 #main_container2 #inputField {
-    width: 65%;
+    width: 66.5%;
     margin-top: -1em;
     border-radius: 30px;
     height: 60%;
+    border: rgb(0, 179, 255) solid 5px;
     background-color: rgba(0, 0, 0, 0.327);
     color: rgba(255, 255, 255, 0.907);
-    padding: 1.5rem 2rem;
+    padding: 1rem 2rem;
+  
 }
 #main_container2 #inputField h1 {
     text-align: center;
@@ -129,12 +135,13 @@ main .main_container {
     text-align: center;
 }
 #main_container2 #inputField #inputAndLabel .plus {
-    border: 5px solid rgba(255, 255, 255, 0.907);
+    border: 5px solid rgb(0, 179, 255);
+    color: rgb(0, 179, 255);
     display: flex;
     justify-content: center;
     align-items: center;
     width: 2.7em;
-    padding: 0.4em 0.6em;
+    padding: 0.6em 0.7em;
     border-radius: 50%;
     font-size: xx-large;
     font-weight: bolder;
@@ -484,6 +491,9 @@ main .main_container {
         height: auto;
         padding: 1em 2em;
         font-size: 1.8em;
+        background: none;
+        border: none;
+        margin-top: 0.8em;
     }
     #main_container2 #inputField #inputAndLabel {
         margin-top: 2.5em;
@@ -492,6 +502,7 @@ main .main_container {
     }
     #main_container2 #inputField #inputAndLabel .plus {
         font-size: 50px;
+        color: none;
     }
     #main_container2 #inputField button {
         width: 70%;
@@ -540,6 +551,18 @@ main .main_container {
     #dataTable, #clusteredTable {
         scroll-snap-align: start;
         transition: transform 0.6s ease, opacity 0.6s ease;
+    }
+    .features-section{
+        width: 50em;
+        margin: auto;
+        /* background-color: #1E1E1E; */
+        .features-containers{
+            width: 100%;
+            background-color: #3f51b5;
+        }
+        .features-grid{
+            width: 100%;
+        }
     }
 }
 
