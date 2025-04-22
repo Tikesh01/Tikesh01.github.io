@@ -1,0 +1,570 @@
+* {
+  margin: 0%;
+  padding: 0%;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: auto;
+  width: 100%;
+  /* font-size: large; */
+  font-family: 'Montserrat','candara','Roboto';
+  background-color: rgba(0, 0, 0, 0.71);
+  background: url(../static/Animated\ Shape.svg);
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-attachment: fixed;
+}
+
+/* Default nav styles */
+#header_and_navbaar {
+  width: 100%;
+  height: auto;
+  background: linear-gradient(135deg, #0e2a47, rgba(1,2,5,1));
+}
+
+nav {
+  position: fixed;
+  /* text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); */
+  /* display: none; */
+  z-index: 1000;
+
+  button {
+    background-color: rgb(0, 0, 0);
+    width: 7em;
+    height: 2.8em;
+    color: rgba(255, 255, 255, 0.744);
+    font-weight: bold;
+    border: 1px solid rgb(0, 0, 0);
+    border-radius: 25px;
+    /* box-shadow: 0 2px 3px black; */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+    transition: ease 0.6s ;
+  }
+
+  button:hover {
+    background-color: rgba(53, 53, 53, 0.489);
+    height: 2.9em;
+    width: 7.3em;
+    color: rgb(0, 0, 0);
+  }
+
+  a {
+    color: rgb(0, 0, 0);
+    text-decoration: none;
+    transition: ease 0.4s;
+  }
+
+  a:visited {
+    color: rgba(0, 0, 0, 0.578);
+  }
+}
+
+/* For larger devices */
+@media (min-width: 769px) and (max-width: 3000px) {
+  button {
+    box-shadow: 0 2p 3px rgb(1, 86, 204);
+  }
+
+  #header_and_navbaar {
+    background: linear-gradient(135deg, #0e2a47, rgba(1,2,5,1));
+    color: white;
+
+    #header {
+      margin-top: 5rem;
+    }
+
+    p {
+      height: 1.5rem;
+      font-family: 'Dancing Script','Brush Script MT','Lucida Handwriting',candara,cursive,calibri;
+      font-weight: 200;
+      letter-spacing: 4px;
+      word-spacing: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: lighter;
+    }
+  }
+
+  #smallerdevice {
+    display: none;
+  }
+
+  #bigsize {
+    margin-top: -5rem;
+    width: 100%;
+    height: 6.1em;
+    overflow: hidden;
+    /* background: linear-gradient(135deg, rgb(69, 16, 26), rgba(13, 51, 71, 0.884),rgb(61, 34, 13)); */
+    /* background-color: rgb(241, 240, 240); */
+    background: rgb(235, 235, 235);
+    box-shadow: 0 2px 3px black;
+    padding: 0em 6.6%;
+    font-size: large;
+
+    .nav_container {
+      height: 100%;
+      display: flex;
+      align-items: center;
+    }
+
+    #nav_container1 {
+      /* background-color: rgb(58, 20, 53); */
+      float: left;
+
+      a:hover {
+        background-color: rgba(192, 192, 192, 0.441);
+        padding: 0.3em 0.4em;
+        border-radius: 5px;
+      }
+
+      img {
+        /* margin-top: 0.5em; */
+        max-width: 100%;
+        height: auto;
+        height: 5.5em;
+        width: 5.5em;
+        transition: transform 1s ease;
+        
+      }
+
+      img:hover {
+        transform: rotate(-20deg);
+      }
+
+      #headers {
+        a {
+          margin-left: 3em;
+        }
+      }
+    }
+
+    #nav_container2 {
+      float: right;
+      /* background-color: blueviolet; */
+      color: black;
+
+      #navbar_instaicon {
+        font-size: large;
+        margin-right: 3em;
+      }
+
+      #navbar_instaicon:hover {
+        /* font-size: x-large; */
+        color: rgb(236, 36, 69);
+      }
+    }
+
+    #signup {
+      margin-left: 3em;
+    }
+  }
+}
+
+@media (min-width: 1700px) {
+  #bigsize {
+    padding: 0em 9%;
+    font-size: 19px;
+
+    #nav_container1 {
+      #headers {
+        a {
+          margin-left: 5em;
+        }
+      }
+    }
+
+    #nav_container2 {
+      #navbar_instaicon {
+        font-size: x-large;
+        margin-right: 4em;
+      }
+    }
+  }
+}
+
+@media (min-width: 1280px) and (max-width: 1700px) {
+
+  #bigsize {
+    font-size: smaller;
+
+    #nav_container1 {
+      #headers {
+        a {
+          margin-left: 5.5em;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 1150px) and (max-width: 1280px) {
+  #header_and_navbaar {
+    #header {
+      margin-top: 4.2em;
+    }
+
+    p {
+      font-size: smaller;
+    }
+  }
+
+  #bigsize {
+    margin-top: -5.2em;
+    font-size: small;
+    height: 5.4em;
+
+    #nav_container1 {
+      img {
+        height: 5em;
+        width: 6em;
+      }
+
+      a {
+        margin-left: 2.5em;
+      }
+    }
+  }
+}
+
+@media (min-width: 951px) and (max-width: 1150px) {
+  #header_and_navbaar {
+    #header {
+      margin-top: 4.9em;
+    }
+
+    p {
+      font-size: small;
+      height: 1.355rem;
+    }
+  }
+
+  #smallerdevice {
+    display: none;
+  }
+
+  #bigsize {
+    margin-top: -6em;
+    font-size: small;
+    height: 5.9em;
+
+    #nav_container1 {
+      img {
+        height: 5em;
+        width: 6em;
+      }
+    }
+
+    #nav_container2 {
+      #login {
+        width: 5.2em;
+      }
+
+      #signup {
+        width: 5.6em;
+      }
+    }
+  }
+}
+
+@media (min-width: 769px) and (max-width: 951px) {
+  #header_and_navbaar {
+    #header {
+      margin-top: 4.3em;
+    }
+
+    p {
+      font-size: smaller;
+      height: 1.3rem;
+    }
+  }
+
+  #smallerdevice {
+    display: none;
+  }
+
+  #bigsize {
+    margin-top: -5.1em;
+    font-size: smaller;
+    padding: 0 3.5%;
+    height: 5.2em;
+
+    #nav_container1 {
+      img {
+        height: 5em;
+        width: 5em
+      }
+    }
+
+    #signup {
+      margin-left: 1em;
+    }
+  }
+
+  button {
+    width: 5.5em;
+    font-size: 12px;
+  }
+}
+
+/*STYLE FOR SMALLER DEVICES */
+@media (min-width: 541px) and (max-width: 768px) {
+  button {
+    width: 6em;
+    height: 2.2em;
+    background-color: rgb(0, 179, 255);
+  }
+
+  #login {
+    width: 5.2em;
+  }
+
+  #header_and_navbaar {
+    background: linear-gradient(135deg, #0e2a47, rgba(1,2,5,1));
+    /* Remove or replace the previous background-color setting */
+
+    p {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Brush Script MT;
+      font-size: small;
+      letter-spacing: 1.7px;
+    }
+  }
+
+  #bigsize {
+    display: none;
+  }
+
+  #smallerdevice {
+    width: 100%;
+    height: 7.5em;
+    background: linear-gradient(135deg, #0e2a47, rgba(1,2,5,1));
+    padding: 0 2em;
+    box-shadow: 0 2px 4px black;
+    font-size: smaller;
+        
+    #logoText {
+      margin-left: 0.2em;
+      font-size: 2.1em;
+      /* margin-top: -0.1em; */
+    }
+
+    #bar_and_logo {
+      /* background-color: aquamarine; */
+      display: flex;
+      align-items: center;
+      width: auto;
+      height: 100%;
+      float: left;
+      color: rgb(230, 230, 230);
+
+      img {
+        max-width: 100%;
+        height: auto;
+        height: 5rem;
+        margin-left: 1rem;
+        width: 5rem;
+      }
+
+      #verysmaller {
+        display: none;
+      }
+    }
+
+    #button_and_icon {
+      display: flex;
+      align-items: center;
+      /* background-color: rgb(40, 40, 75); */
+      width: auto;
+      height: 100%;
+      float: right;
+      #login{
+        font-size: larger;
+        background-color: rgb(0, 179, 255);
+      }
+      li {
+        margin-left: 3em;
+
+        a {
+          color: rgb(230, 230, 230);
+          font-size: 25px;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 0px) and (max-width: 540px) {
+  #bigsize {
+    display: none;
+  }
+  button {
+    background-color: rgb(0, 179, 255);
+    width: 5.5em;
+    height: 2.7em;
+    font-weight: bold;
+    font-size: 11px;
+  }
+
+  #login {
+    width: 5.5em;
+    font-size: large;
+  }
+
+  #header_and_navbaar {
+    background: linear-gradient(135deg, #0e2a47, rgba(1,2,5,1));
+
+    p {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Brush Script MT;
+      font-size: small;
+      letter-spacing: 1.3px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    #header_and_navbaar {
+      p {
+        height: 1em;
+      }
+    }
+  }
+
+  #smallerdevice {
+    width: 100%;
+    height: 8em;
+    background: linear-gradient(135deg, #0e2a47, rgba(1,2,5,1));
+    padding: 0rem 2em;
+    box-shadow: 0 2px 4px black;
+    font-size: smaller;
+    color: rgb(230, 230, 230);
+
+    #logoText {
+      /* margin-left: 1.5em; */
+      font-size: 2.2em;
+      font-weight:100;
+    }
+
+    @media (max-width: 450px) {
+      #logoText {
+        margin-left: 0;
+        font-size: 2.1em;
+      }
+    }
+
+    #bar_and_logo {
+      /* background-color: aquamarine; */
+      display: flex;
+      align-items: center;
+      width: 7.5rem;
+      height: 100%;
+      float: left;
+      color: rgb(230, 230, 230);
+
+      img {
+        /* max-width: 100%; */
+        height: auto;
+        height: 6.5em;
+        width: 7em;
+        margin: 0 0.5rem;
+      }
+
+
+      #verysmaller {
+        display: none;
+      }
+
+      @media (max-width: 450px) {
+        #smaller {
+          display: none;
+        }
+
+        #verysmaller {
+          display: block;
+        }
+      }
+    }
+
+    @media (max-width: 450px) {
+      #bar_and_logo {
+        width: auto;
+      }
+    }
+
+    #button_and_icon {
+      display: flex;
+      align-items: center;
+      width: auto;
+      height: 100%;
+      float: right;
+      button{
+        background-color: rgb(0, 179, 255);
+      }
+      li {
+        margin-left: 1.8em;
+        font-size: 24px;
+
+        a {
+          color: rgb(230, 230, 230);
+        }
+      }
+    }
+
+    @media (max-width: 450px) {
+      #button_and_icon {
+        font-size: xx-large;
+        #login{
+          font-size: large;
+        }
+
+        a {
+          color: rgb(230, 230, 230);
+        }
+      }
+    }
+  }
+
+  @media(max-width: 391px) {
+    #header_and_navbaar {
+      p {
+        height: 0.8em;
+        font-size: 10px;
+        padding: 5px 0;
+      }
+    }
+
+    #smallerdevice {
+      height: 8.5em;
+      font-size: small;
+      padding: 0 2em;
+
+      button {
+        font-size: larger;
+        background-color: rgb(0, 179, 255);
+      }
+
+      #bar_and_logo {
+        #verysmaller {
+          height: 7em;
+          width: 7em;
+          margin-left: 1em;
+        }
+      }
+      #logoText{
+        font-size: 2.2em;
+      }
+      #button_and_icon {
+        li {
+          margin-left: 1.7em;
+          font-size: 24px;
+        }
+      }
+    }
+  }
+}
