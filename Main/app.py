@@ -41,7 +41,8 @@ def printTable(type,filePath):
     if type == "csv":
         df = pd.read_csv(filePath)
         df = df.dropna(how="all")  # Remove empty rows
-        MainDFf = df
+        app.config['df'] = df;
+        columns = df.columns
         isDateTimeCol = detect_datetime_columns(df)
         arr = isDateTimeCol.values()
         if 1 in  arr or 2 in arr or 3 in arr:
@@ -58,16 +59,27 @@ def printTable(type,filePath):
     if type == "txt":
         pass
 #================================================/////===========================================
-from pandas.api.types import is_datetime64_any_dtype
 @app.route("/askUserClustAccDateTime", methods=["POST"])
+def check():
+    value = int(request.form.get("useDateTime"))
+    df = app.config['df']
+    columns = df.columns
+    app.config['useDateTime'] = value
+    if value in [0,1,2]:
+        return render_template("index.html",quote="Do you want Heirarchial clustering" , noOfColumns=len(columns), columns=columns)
+#================================================/////===========================================
+
+from pandas.api.types import is_datetime64_any_dtype
+@app.route('/start', methods=["POST"])
 def uploadFileToClust():
-    mainDf = pd.read_csv((app.config['path']))#mianDf is the data frame containing the whole content of file
+    mainDf = app.config['df']#mianDf is the data frame containing the whole content of file
     columns = np.array(mainDf.columns)#to know the number of colums in dataframe(csv) file
     noOfColumns = len(columns)
     noOfRows = len(mainDf.index)
     print(f"Total columns = {noOfColumns}")
     print(f"Total rows = {noOfRows}")
-    value = int(request.form.get("useDateTime"))
+    value = app.config['useDateTime']
+    # h=request.form.get()
     if value != 0:
         sortAccordingToDateTime = detect_datetime_columns(mainDf)
         print(sortAccordingToDateTime)
@@ -129,7 +141,7 @@ def clusterDateTimeCol(fContent, col,no,ascending):
         # Try to detect and sort if the column is just year values
         fContent = fContent.sort_values(by=col,ignore_index=True, ascending=ascending)
         fContent = fContent.reset_index(drop=True)
-        fContent = multiIndex(fContent,col, True)
+        fContent = multiIndex(fContent,col, True, asc=ascending)
     elif no == 2 or 3:
         # Now, try to detect proper date/datetime columns
         try:

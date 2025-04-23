@@ -101,21 +101,40 @@
         </div>
       </div>
       {% if note %}
+      <section id="question">
       <div id="middle">
-        <p> {{note}} {{path}} </p>
+        <p> {{note}}!</p>
        <form action="/askUserClustAccDateTime" method="Post" enctype="multipart/form-data" id="askFordateTime">
-        <label for="useDateTime">Do You Want</label>
-        <input type="radio" name="useDateTime" id="ase" value="1">
-        <label for="ase">Clustere According to DateTime in Ascending order</label>
-        <input type="radio" name="useDateTime" id="des" value="2">
-        <label for="des">Clustere According to DateTime in decending order</label>
-        <input type="radio" name="useDateTime" id="nooo" value="0">
-        <label for="nooo">none</label>
-        <button type="submit" name="useDateTime"value="1">Start clustering</button>
+        <label for="useDateTime" id="ques">Do You Want?</label>
+        <div><input type="radio" name="useDateTime" id="ase" value="1">
+        <label for="ase">Cluster According to That column in <span>Ascending order</span></label></div>
+        <div><input type="radio" name="useDateTime" id="des" value="2">
+        <label for="des">Cluster According to That column in <span>decending order</span></label></div>
+        <div><input type="radio" name="useDateTime" id="nooo" value="0" required>
+        <label for="nooo">Not to cluster according to that</label></div>
+        <button type="submit" name="useDateTime"value="1">Next</button>
        </form>
       </div>
       {% else %}
       {% endif %} 
+      
+      {% if quote %}
+      <div id="middle">
+        <p>{{quote}}</p>
+        <form action="/start" method="Post", enctype="multipart/form-data" id="askForHeirarchy">
+          <p>Smaller number for first</p>
+          {% for i in columns %}
+            <span id="h">{{i}} <input type="number" name="" id="" value></span>
+          {% endfor %}
+          <div id="button">
+            <button type="reset">Skip</button>
+          <button type="submit">cluster</button>
+        </div>
+       </form>
+      </div>
+      {% else %}
+      {% endif %} 
+    </section>
       <!-- {% if table %}
       <div id="middle">
         <form id="inputNumberOfClusters" method="Post" action="/clusteringStart" enctype="multipart/form-data">
