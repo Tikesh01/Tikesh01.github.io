@@ -27,29 +27,24 @@ def getFile():
     uploadedFileExtension = nameOfFile[len(nameOfFile)-1]
     if uploadedFileExtension in listOfExtension:
         file.save(filePath)
-        # with open(filePath,"r",encoding= "utf-8") as file: # mode "r" and encoding helps to access a file as a string
-        #     fileContent = file.read()# Read is a method to get the content of the file
-        
-        return printTable(uploadedFileExtension,filePath)
-        
-
+        return detectType(uploadedFileExtension,filePath)#this fuction will detect the perticular type of file than detect the column contianing date,datetime or year 
     else:
-        return render_template("index.html", error=f"only {listOfExtension} files are allowed")
+        return render_template("index.html", error=f"only {listOfExtension} files are allowed") i
 
-def printTable(type,filePath):
+def detectType(type,filePath):
      #if The uploaded file is CSV
     if type == "csv":
         df = pd.read_csv(filePath)
         df = df.dropna(how="all")  # Remove empty rows
-        app.config['df'] = df;
+        app.config['df'] = df
         columns = df.columns
         isDateTimeCol = detect_datetime_columns(df)
         arr = isDateTimeCol.values()
-        if 1 in  arr or 2 in arr or 3 in arr:
-            return render_template("index.html", note="Date or time or year column detected") 
-        else:
-            return render_template("index.html", table=MainDFf.to_html(classes="UploadedData", border=0))  
-    
+        if 1 in  arr or 2 in arr or 3 in arr:#if has any datetime column it will render the form to ask cluster according to date time
+            return render_template("index.html", table=df.to_html(classes="UploadedData", border=0), note="Date or time or year column detected") 
+        else:#otherWise ask for preferemce only
+            return render_template("index.html", table=df.to_html(classes="UploadedData", border=0), quote="Do you want Heirarchial clustering (Optional)" , noOfColumns=len(columns), columns=columns)
+            
     if type == "xls" or "xlsx":
         pass
     if type == "sql":
@@ -59,15 +54,17 @@ def printTable(type,filePath):
     if type == "txt":
         pass
 #================================================/////===========================================
+#================================================/////===========================================
 @app.route("/askUserClustAccDateTime", methods=["POST"])
 def check():
     value = int(request.form.get("useDateTime"))
     df = app.config['df']
     columns = df.columns
     app.config['useDateTime'] = value
-    if value in [0,1,2]:
-        return render_template("index.html",quote="Do you want Heirarchial clustering" , noOfColumns=len(columns), columns=columns)
+    if value in [0,1,2]: #Return yes or no to cluster 
+        return render_template("index.html", table=df.to_html(classes="UploadedData", border=0),quote="Do you want Heirarchial clustering" ,note="Date or time or year column detected", noOfColumns=len(columns), columns=columns)#It will render the form to ask preference
 #================================================/////===========================================
+app.config['useDateTime'] = 0#if No date time column detected
 
 from pandas.api.types import is_datetime64_any_dtype
 @app.route('/start', methods=["POST"])
@@ -93,11 +90,10 @@ def uploadFileToClust():
             else:
                 continue
         
-    return render_template("index.html", clusteredData = mainDf.to_html(classes="UploadedclusteredData", border=0))
+    return render_template("index.html", table=app.config['df'].to_html(classes="UploadedData", border=0), clusteredData = mainDf.to_html(classes="UploadedclusteredData", border=0), quote="Do you want Heirarchial clustering",  noOfColumns=len(columns), columns=columns)
 
 #================================================///////=============================================
 import re
-
 def detect_datetime_columns(df):
     result = {}
 
