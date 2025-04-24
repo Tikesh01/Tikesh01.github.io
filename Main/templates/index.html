@@ -64,9 +64,10 @@
           <ul type="disc">
             <li> <h2>A</h2><h2>c</h2><h2>c</h2><h2>e</h2><h2>l</h2><h2>e</h2><h2>r</h2><h2>a</h2><h2>t</h2><h2>e</h2></li>
             <li><h2>G</h2><h2>r</h2><h2>o</h2><h2>w</h2><h2>t</h2><h2>h</h2><span>.....</span><h2>w</h2><h2>i</h2><h2>t</h2><h2>h</h2></li>
-            <li id="Quantum"><h2>Q</h2><h2>u</h2><h2>a</h2><h2>n</h2><h2>t</h2><h2>u</h2><h2>m</h2></li>
+            <li id="Quantum"><h2><i class="fas fa-atom" style="color: #361249;"></i></h2>
+              <h2>Q</h2><h2>u</h2><h2>a</h2><h2>n</h2><h2>t</h2><h2>u</h2><h2>m</h2></li>
             <li><h1 id="withus">Clustering</h2></li>
-            <li id="explorebuttonli"><button link="#features">Explore</button></li>
+            <li id="explorebuttonli"><button link="#features"> <i class="fas fa-compass" style="margin-right: 6px;"></i>Explore</button></li>
           </ul>
         </div>
       </main>
@@ -79,16 +80,17 @@
             <h1>Upload Your File</h2>
             <div id="inputAndLabel">
               <label >Choose File</label>
-              <label for="getFile" class="plus">+</label>
+              <label for="getFile" class="plus"><i class="fas fa-upload"></i>
+              </label>
               <input type="file" name="file" id="getFile" required />
             </div>
-            <button type="submit"><a href="#second">Upload</a></button>
+            <button type="submit"><a href="#second"><i class="fas fa-file-upload" style="margin-right: 6px;"></i>Upload</a></button>
           </form>
             <h4 style="color: rgb(202, 86, 86);  position: absolute; margin-bottom: -25em; ;">{{error}}</h4>
         </div>
       </main>
       <div id="second" class="data">
-        <h1>Your Data</h1>
+        <h1><i class="fas fa-folder-open"></i> Your Data</h1>
         <div id="dataTable">
           {% if table %}
               {{ table|safe }}
@@ -102,52 +104,87 @@
       </div>
       {% if note %}
       <section id="question">
-      <div id="middle">
-        <p> {{note}}!</p>
-       <form action="/askUserClustAccDateTime" method="Post" enctype="multipart/form-data" id="askFordateTime">
-        <label for="useDateTime" id="ques">Do You Want?</label>
-        <div><input type="radio" name="useDateTime" id="ase" value="1">
-        <label for="ase">Cluster According to That column in <span>Ascending order</span></label></div>
-        <div><input type="radio" name="useDateTime" id="des" value="2">
-        <label for="des">Cluster According to That column in <span>decending order</span></label></div>
-        <div><input type="radio" name="useDateTime" id="nooo" value="0" required>
-        <label for="nooo">Not to cluster according to that</label></div>
-        <button type="submit" name="useDateTime"value="1">Next</button>
-       </form>
-      </div>
+        <div class="middle" id="dateTime">
+          <h3>
+            <i class="fas fa-calendar-alt" style="margin-right: 6px; color: #2c3e50;"></i> 
+            Looks like your data includes a <strong>datetime</strong> or <strong>year</strong> column.
+          </h3>          
+          <form action="/askUserClustAccDateTime" method="POST" enctype="multipart/form-data" id="askFordateTime">
+            <h4 id="ques">
+              <i class="fas fa-question-circle" style="color: #9b59b6; margin-right: 6px;"></i>
+              What would you like to do with the datetime column?
+            </h4>
+      
+            <div>
+              <input type="radio" name="useDateTime" id="ase" value="1">
+              <label for="ase">
+                <i class="fas fa-sort-amount-up-alt" style="color: #2980b9; margin-right: 5px;"></i>
+                Cluster by <span>Ascending order</span>
+              </label>
+            </div>
+      
+            <div>
+              <input type="radio" name="useDateTime" id="des" value="2">
+              <label for="des">
+                <i class="fas fa-sort-amount-down-alt" style="color: #c0392b; margin-right: 5px;"></i>
+                Cluster by <span>Descending order</span>
+              </label>
+            </div>
+      
+            <div>
+              <input type="radio" name="useDateTime" id="nooo" value="0" required>
+              <label for="nooo">
+                <i class="fas fa-times-circle" style="color: #7f8c8d; margin-right: 5px;"></i>
+                Do not cluster using datetime column
+              </label>
+            </div>
+      
+            <div id="button">
+              <button type="submit" name="useDateTime" value="1">
+                <i class="fas fa-arrow-right" style="margin-right: 6px;"></i> Next
+              </button>
+            </div>
+          </form>
+        </div>      
       {% else %}
       {% endif %} 
       
       {% if quote %}
-      <div id="middle">
-        <p>{{quote}}</p>
-        <form action="/start" method="Post", enctype="multipart/form-data" id="askForHeirarchy">
-          <p>Smaller number for more prefrence !</p>
+      <div class="middle" id="priority">
+        <h3>
+          <i class="fas fa-layer-group" style="margin-right: 6px; color: #34495e;"></i>
+          Do you want to define custom clustering priorities for these columns?
+        </h3>        
+        <form action="/start" method="POST" enctype="multipart/form-data" id="askForHeirarchy">
+          <h4>
+            <i class="fas fa-sort-numeric-up-alt" style="margin-right: 5px; color: #2980b9;"></i>
+            Smaller number = higher priority
+          </h4>
+      
           {% for i in columns %}
-            <span id="h">{{i}} <input type="number" name="" id="" value></span>
+            <div style="margin: 0.6em 0;">
+              <label style="margin-right: 0.5em; font-weight: 600;">
+                <i class="fas fa-columns" style="margin-right: 4px; color: #7f8c8d;"></i> {{i}}:
+              </label>
+              <input type="number" name="{{i}}" min="1" placeholder="e.g. 1" >
+            </div>
           {% endfor %}
+      
           <div id="button">
-            <button type="reset">Skip</button>
-          <button type="submit">cluster</button>
-        </div>
-       </form>
-      </div>
+            <button type="reset" name="skipped"value="0">
+              <i class="fas fa-forward" style="margin-right: 4px;"></i> Skip
+            </button>
+            <button type="submit" name="done" value="">
+              <i class="fas fa-project-diagram" style="margin-right: 4px;"></i> Cluster
+            </button>
+          </div>
+        </form>
+      </div>      
       {% else %}
       {% endif %} 
     </section>
-      <!-- {% if table %}
-      <div id="middle">
-        <form id="inputNumberOfClusters" method="Post" action="/clusteringStart" enctype="multipart/form-data">
-          <label id="clusterNo" for="noOfClusters"><h3>How many Clusters?</h3></lable>
-          <input type="number" id="noOfClusters" name="noOfCluster" required placeholder="eg. 12, 30" />
-          <button type="submit">Start clustering</button>
-        </form>
-      </div>
-      {% else %}
-      {% endif %} -->
-      <!-- New third container for clustered data -->
       <div id="third" class="data">
-        <h1>Clustered Data</h1>
+        <h1><i class="fas fa-layer-group" style="color: #3498db;"></i> Clustered Data</h1>
         <div id="clusteredTable">
           {% if clusteredData %}
               {{ clusteredData|safe }}

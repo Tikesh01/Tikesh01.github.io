@@ -2,8 +2,6 @@ from flask import Flask, render_template, request
 import os  #os handles the interaction with operating system 
 import pandas as pd
 import numpy as np
-import csv
-from io import StringIO
 from jinja2 import Environment
 from qiskit import QuantumCircuit
 from flask import session 
@@ -29,7 +27,7 @@ def getFile():
         file.save(filePath)
         return detectType(uploadedFileExtension,filePath)#this fuction will detect the perticular type of file than detect the column contianing date,datetime or year 
     else:
-        return render_template("index.html", error=f"only {listOfExtension} files are allowed") i
+        return render_template("index.html", error=f"only {listOfExtension} files are allowed") 
 
 def detectType(type,filePath):
      #if The uploaded file is CSV
@@ -62,7 +60,7 @@ def check():
     columns = df.columns
     app.config['useDateTime'] = value
     if value in [0,1,2]: #Return yes or no to cluster 
-        return render_template("index.html", table=df.to_html(classes="UploadedData", border=0),quote="Do you want Heirarchial clustering" ,note="Date or time or year column detected", noOfColumns=len(columns), columns=columns)#It will render the form to ask preference
+        return render_template("index.html", table=df.to_html(classes="UploadedData", border=0),quote="Do you want Heirarchial clustering" , noOfColumns=len(columns), columns=columns)#It will render the form to ask preference
 #================================================/////===========================================
 app.config['useDateTime'] = 0#if No date time column detected
 
@@ -90,7 +88,7 @@ def uploadFileToClust():
             else:
                 continue
         
-    return render_template("index.html", table=app.config['df'].to_html(classes="UploadedData", border=0), clusteredData = mainDf.to_html(classes="UploadedclusteredData", border=0), quote="Do you want Heirarchial clustering",  noOfColumns=len(columns), columns=columns)
+    return render_template("index.html", table=app.config['df'].to_html(classes="UploadedData", border=0), clusteredData = mainDf.to_html(classes="UploadedClusteredData", border=0), quote="Do you want Heirarchial clustering",  noOfColumns=len(columns), columns=columns)
 
 #================================================///////=============================================
 import re
