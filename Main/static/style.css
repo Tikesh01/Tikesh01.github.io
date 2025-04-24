@@ -17,7 +17,6 @@
 #clusterImg {
     display: none;
 }
-
 main {
     width: 85%;
     margin: auto;
@@ -27,6 +26,7 @@ main {
 main .main_container {
     height: 36em;
     margin-bottom: 2em;
+    /* border-radius: 20px; */
 }
 
 /* ===== First Main Section ===== */
@@ -238,7 +238,7 @@ main .main_container {
     border: 2px solid rgb(0, 179, 255);
     /* padding: 1em; */
     color: #141515;
-    background-color: rgba(244, 244, 244, 0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     border-radius: 10px;
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     animation: fadeIn 1s ease-out;
@@ -694,6 +694,7 @@ input[type="number"] {
         padding: none ;
         /* background: #000; */
         padding: none;
+        
     }
 
     .middle {
@@ -707,20 +708,6 @@ input[type="number"] {
             font-size:x-large;
         }
     }
-
-    
-    #priority{
-        max-width: 95%;
-        width: 90%;
-        margin: auto;
-        font-size: x-large;
-        box-shadow: none;
-        button{
-            width: auto;
-            font-size:x-large;
-        }
-    } 
-
 }
 
 /* Responsive styles for devices between 769px and 1400px */
@@ -736,7 +723,7 @@ input[type="number"] {
         float: none;
         padding: 2em;
         margin-top: 2em;
-        border-bottom: 0.6em solid black;
+        /* border-bottom: 0.6em solid black; */
         /* Adjusted border */
         background: none;
         box-shadow: none;
@@ -761,13 +748,15 @@ input[type="number"] {
     }
 
     #main_container2 {
-        width: 100%;
+        width: 70%;
         float: none;
         padding: 2em;
-        margin-top: 2em;
+        margin: auto;
+        /* margin-top: 2em; */
         background-size: cover;
         background: none;
         box-shadow: none;
+        border: none;
 
     }
 
