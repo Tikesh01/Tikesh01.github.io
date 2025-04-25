@@ -4,11 +4,10 @@ import pandas as pd
 import numpy as np
 from jinja2 import Environment
 from qiskit import QuantumCircuit
-from flask import session 
-q = QuantumCircuit(2)
+
 app = Flask(__name__)
 env = Environment(autoescape=True)
-MainDFf = pd.DataFrame()#This is created to share the files content one to another function
+
 @app.route('/')
 def interface():
     return render_template('index.html')
@@ -39,9 +38,9 @@ def detectType(type,filePath):
         isDateTimeCol = detect_datetime_columns(df)
         arr = isDateTimeCol.values()
         if 1 in  arr or 2 in arr or 3 in arr:#if has any datetime column it will render the form to ask cluster according to date time
-            return render_template("index.html", table=df.to_html(classes="UploadedData", border=0), note="Date or time or year column detected") 
+            return render_template("index.html", table=df.to_html(classes="UploadedData", border=0), note="Date or time or year column detected",  noOfColumns=len(columns), noOfRows=len(df.index)) 
         else:#otherWise ask for preferemce only
-            return render_template("index.html", table=df.to_html(classes="UploadedData", border=0), quote="Do you want Heirarchial clustering (Optional)" , noOfColumns=len(columns), columns=columns)
+            return render_template("index.html", table=df.to_html(classes="UploadedData", border=0), quote="Do you want Heirarchial clustering (Optional)" , noOfColumns=len(columns), columns=columns, noOfRows=len(df.index))
             
     if type == "xls" or "xlsx":
         pass
@@ -60,7 +59,7 @@ def check():
     columns = df.columns
     app.config['useDateTime'] = value
     if value in [0,1,2]: #Return yes or no to cluster 
-        return render_template("index.html", table=df.to_html(classes="UploadedData", border=0),quote="Do you want Heirarchial clustering" , noOfColumns=len(columns), columns=columns)#It will render the form to ask preference
+        return render_template("index.html", table=df.to_html(classes="UploadedData", border=0),quote="Do you want Heirarchial clustering" , noOfRows = len(df.index),noOfColumns=len(columns), columns=columns)#It will render the form to ask preference
 #================================================/////===========================================
 app.config['useDateTime'] = 0#if No date time column detected
 
@@ -88,7 +87,7 @@ def uploadFileToClust():
             else:
                 continue
         
-    return render_template("index.html", table=app.config['df'].to_html(classes="UploadedData", border=0), clusteredData = mainDf.to_html(classes="UploadedClusteredData", border=0), quote="Do you want Heirarchial clustering",  noOfColumns=len(columns), columns=columns)
+    return render_template("index.html", table=app.config['df'].to_html(classes="UploadedData", border=0), clusteredData = mainDf.to_html(classes="UploadedClusteredData", border=0), quote="Do you want Heirarchial clustering", noOfRows=noOfRows, noOfColumns=len(columns), columns=columns)
 
 #================================================///////=============================================
 import re

@@ -220,7 +220,10 @@ main .main_container {
     font-size: 2rem;
     transition: color 0.3s ease, transform 0.3s ease;
 }
-
+.size{
+    float: left;
+    margin: -1em 9em;
+}
 #second h1:hover,
 #third h1:hover {
     color: #3f51b5c5;
@@ -242,6 +245,7 @@ main .main_container {
     border-radius: 10px;
     transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
     animation: fadeIn 1s ease-out;
+    
 }
 
 #dataTable:hover,
@@ -314,29 +318,37 @@ main .main_container {
 }
 
 .middle {
-    max-width: 32em;
+    width: 32em;
     margin: auto;
     padding: 2em;
     background: #f7f9fa;
     border-radius: 12px;
     border: 1px solid #ddd;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    max-height: 35em;
+    /* overflow: auto;     */
 }
 .middle h3{
     color: rgb(0, 179, 255)
 }
 
 .middle form {
+    max-height: 25em;
     margin-top: 1.5em;
 }
-
+.middle form #askForPrio{
+    display: block;
+    max-height: 18em;
+    overflow-y: scroll;
+}
 .middle #ques {
     font-weight: bold;
     font-size: 1.1em;
     margin-bottom: 1em;
 }
 
-.middle form div {
+
+.middle form #inputField, #askForDateTime div{
     margin: 1.2em 1em;
     display: flex;
     align-items: center;
@@ -627,7 +639,12 @@ input[type="number"] {
         width: 50em;
         padding: 0.7em 0;
     }
-
+    .size{
+        float: left;
+        margin-left: 2em;
+        color: #7e7c7c;
+        font-size: x-large;
+    }
     #second h1 {
         font-size: 45px;
     }
@@ -650,7 +667,7 @@ input[type="number"] {
 
     #clusteredTable {
         width: 90%;
-        max-height: 30em;
+        max-height: 50em;
     }
 
     footer {
@@ -696,13 +713,22 @@ input[type="number"] {
         padding: none;
         
     }
-
+    .middle form {
+        max-height: 18em;
+        margin-top: 1.5em;
+    }
+    .middle form #askForPrio{
+        display: block;
+        max-height: 13em;
+        overflow-y: scroll;
+    }
     .middle {
         max-width: 95%;
         width: 90%;
         margin: auto;
         font-size: x-large;
         box-shadow: none;
+        border-radius: 80px;
         button{
             width: auto;
             font-size:x-large;
