@@ -162,9 +162,15 @@
           document.getElementById("question").innerHTML = "";
           alert("Please upload a supported file");
         } else {
-          alert("File Uploded succesfully! ")
-          if (data.table) document.getElementById("second").innerHTML = data.table;
-          if (data.clustered) document.getElementById("third").innerHTML = data.clustered;
+          if (data.table)
+          { 
+            document.getElementById("second").innerHTML = data.table;
+            alert("File Uploded succesfully! ");
+          }
+          if (data.clustered){
+            document.getElementById("third").innerHTML = data.clustered;
+            alert("File Clustered succesfully! ");
+          }
           document.getElementById("question").innerHTML = (data.note || "") + (data.quote || "");
         }
       });
