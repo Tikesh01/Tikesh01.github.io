@@ -162,16 +162,17 @@
           document.getElementById("question").innerHTML = "";
           alert("Please upload a supported file");
         } else {
-          if (data.table)
+          if (data.table || data.note || data.quote)
           { 
             document.getElementById("second").innerHTML = data.table;
+            document.getElementById("question").innerHTML = (data.note || "") + (data.quote || "");
+            document.getElementById("question").scrollIntoView({"behavior" : "smooth"});//after file uploaded, scroll to form of date_question form
             alert("File Uploded succesfully! ");
           }
           if (data.clustered){
             document.getElementById("third").innerHTML = data.clustered;
             alert("File Clustered succesfully! ");
           }
-          document.getElementById("question").innerHTML = (data.note || "") + (data.quote || "");
         }
       });
     </script>
