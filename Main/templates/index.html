@@ -15,6 +15,7 @@
   
 </head>
   <body>
+    <section>
     <ul type="none" id="header_and_navbaar">
       <li>
       <nav id="bigsize" class="Navbaar">
@@ -53,12 +54,9 @@
         <header><p>Smarter Insights, Faster Decisions</p></header>
       </li>
     </ul>
-    <div id="upper1_of_main" class ="upper_of_main">
-      <p>Smarter Insights,</p>
-    </div>
-    <div id="upper2_of_main" class ="upper_of_main">
-      <p>Faster Decisions!</p>
-    </div>              
+    </div>   
+    </section>
+    <section>      
       <main>
         <div class="main_container" id="main_container1">
           <ul type="disc">
@@ -87,20 +85,23 @@
             <button type="submit"><i class="fas fa-file-upload" style="margin-right: 6px;"></i>Upload</button>
             <p id="typeError"></p>
           </form>
-          
         </div>
       </main>
-      </section>
+    </section>
+    <section> 
       <div id="second" class="data">
         {% include "partials/data_table.html" %}
       </div>
-      <section id="question">
+    </section>
+    <section id="question">
         {% include "partials/date_question.html" %}
         {% include "partials/priority_form.html" %}
-      </section>  
-      <div id="third" class="data">
+    </section>
+    <section>
+        <div id="third" class="data">
         {% include "partials/clustered_data.html" %}
-      </div>
+        </div>
+    </section>
       <section class="features-section" id="features">
         <div class="features-container">
           <h2 class="section-title">Why Choose Our Quantum Clustering?</h2>

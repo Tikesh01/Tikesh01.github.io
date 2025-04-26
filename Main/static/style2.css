@@ -8,13 +8,8 @@ html,
 body {
   height: auto;
   width: 100%;
-  /* font-size: large; */
   font-family: 'Montserrat','candara','Roboto';
-  background-color: rgba(0, 0, 0, 0.71);
-  background: url(../static/Animated\ Shape.svg);
-  background-repeat: no-repeat;
-  background-size: 100% 100%;
-  background-attachment: fixed;
+  background-color: rgb(97, 97, 97);
 }
 
 /* Default nav styles */
@@ -26,8 +21,6 @@ body {
 
 nav {
   position: fixed;
-  /* text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5); */
-  /* display: none; */
   z-index: 1000;
 
   button {
