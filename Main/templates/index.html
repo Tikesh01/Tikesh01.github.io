@@ -10,9 +10,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
 
-
   <link rel= "shortcut icon" type="icon/image" href="../static/clusterLogo-removebg-preview.webp" />
   <title>QUBITSORT - Accelerate Growth with Quantum clustering</title>
+  
 </head>
   <body>
     <ul type="none" id="header_and_navbaar">
@@ -84,131 +84,28 @@
               </label>
               <input type="file" name="file" id="getFile" required />
             </div>
-            <button type="submit"><a href="#second"><i class="fas fa-file-upload" style="margin-right: 6px;"></i>Upload</a></button>
+            <button type="submit"><i class="fas fa-file-upload" style="margin-right: 6px;"></i>Upload</button>
+            {% include "partials/type_error.html" %}
           </form>
-            <h4 style="color: rgb(202, 86, 86);  position: absolute; margin-bottom: -25em; ;">{{error}}</h4>
         </div>
       </main>
       </section>
       <div id="second" class="data">
         <h1><i class="fas fa-folder-open"></i> Your Data</h1>
         <div id="dataTable">
-          {% if table %}
-              {{ table|safe }}
-          {% else %}
-              <p style="text-align: center; color: gray; font-size: larger; margin: 4em 0;">
-                  <label for="getFile">Upload a file to see data here.</label>
-              </p>
-              <p style="color: rgb(217, 76, 76);">{{error}}</p>
-          {% endif %}
+          {% include "partials/data_table.html" %}
         </div>
         {% if table %}
         <p class="size">[ {{ noOfRows }} x {{noOfColumns}} ]</p>
         {% else %}
         {% endif %}
       </div>
-      {% if note or quote%}
       <section id="question">
-        {% if note  %}
-        <div class="middle" id="dateTime">
-          <h3>
-            <i class="fas fa-calendar-alt" style="margin-right: 6px; color: #2c3e50;"></i> 
-            Looks like your data includes a <strong>datetime</strong> or <strong>year</strong> column.
-          </h3>          
-          <form action="/askUserClustAccDateTime" method="POST" enctype="multipart/form-data" id="askForDateTime">
-            <h4 id="ques">
-              <i class="fas fa-question-circle" style="color: #9b59b6; margin-right: 6px;"></i>
-              What would you like to do with the datetime column?
-            </h4>
-      
-            <div>
-              <input type="radio" name="useDateTime" id="ase" value="1">
-              <label for="ase">
-                <i class="fas fa-sort-amount-up-alt" style="color: #2980b9; margin-right: 5px;"></i>
-                Cluster by <span>Ascending order</span>
-              </label>
-            </div>
-      
-            <div>
-              <input type="radio" name="useDateTime" id="des" value="2">
-              <label for="des">
-                <i class="fas fa-sort-amount-down-alt" style="color: #c0392b; margin-right: 5px;"></i>
-                Cluster by <span>Descending order</span>
-              </label>
-            </div>
-      
-            <div>
-              <input type="radio" name="useDateTime" id="nooo" value="0" required>
-              <label for="nooo">
-                <i class="fas fa-times-circle" style="color: #7f8c8d; margin-right: 5px;"></i>
-                Do not cluster using datetime column
-              </label>
-            </div>
-      
-            <div id="button">
-              <button  type="submit" name="useDateTime" value="n">
-                <i class="fas fa-arrow-right" style="margin-right: 6px;"></i> Next
-              </button></a>
-            </div>
-          </form>
-        </div>      
-      {% else %}
-      {% endif %} 
-      
-      {% if quote %}
-      <div class="middle" id="priority">
-        <h3>
-          <i class="fas fa-layer-group" style="margin-right: 6px; color: #34495e;"></i>
-          Do you want to define custom clustering priorities for these columns?
-        </h3> 
-        <p>( Optional )</p>
-        <form action="/start" method="POST" enctype="multipart/form-data" >
-          <h4>
-            <i class="fas fa-sort-numeric-up-alt" style="margin-right: 5px; color: #2980b9;"></i>
-            Smaller number = higher priority
-          </h4>
-          <div id="askForPrio">
-          {% for i in columns %}
-            <div style="margin: 0.6em 0;" id="inputField">
-              <label style="margin-right: 0.5em; font-weight: 600;">
-                <i class="fas fa-columns" style="margin-right: 4px; color: #7f8c8d;"></i> {{i}}:
-              </label>
-              <input type="number" name="{{i}}" min="1" placeholder="e.g. 1" >
-            </div>
-          {% endfor %}
-          </div>
-          <div id="button">
-            <button type="reset" name="skipped"value="0">
-              <i class="fas fa-forward" style="margin-right: 4px;"></i> reset
-            </button>
-            <button type="submit" name="done" value="">
-              <i class="fas fa-project-diagram" style="margin-right: 4px;"></i> Cluster
-            </button>
-          </div>
-        </form>
-      </div>      
-      {% else %}
-      {% endif %} 
-
-    </section>
-    {% else %}
-    {% endif %} 
+        {% include "partials/date_question.html" %}
+        {% include "partials/priority_form.html" %}
+      </section>  
       <div id="third" class="data">
-        <h1><i class="fas fa-layer-group" style="color: #3498db;"></i> Clustered Data</h1>
-        <div id="clusteredTable">
-          {% if clusteredData %}
-              {{ clusteredData|safe }}
-          {% else %}
-              <p style="text-align: center; color: gray; font-size: larger; margin: 4em 0;">
-                  <label for="getClusteredFile">Upload a file to see clustered data here.</label>
-              </p>
-              <p style="color: rgb(217, 76, 76);">{{error2}}</p>
-          {% endif %}
-        </div>
-        {% if clusteredData %}
-        <p class="size">[ {{ noOfRows }} x {{ noOfColumns }} ]</p>
-        {% else %}
-        {% endif %}
+        {% include "partials/clustered_data.html" %}
       </div>
       <section class="features-section" id="features">
         <div class="features-container">
@@ -254,5 +151,29 @@
             <p class="footer-copy">© 2025 Quantum Clustering. All rights reserved.</p>
         </div>
     </footer>
+    <script>
+      document.getElementById("inputField").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+      
+        const res = await fetch("/uploader", {
+          method: "POST",
+          body: formData,
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+        });
+      
+        const data = await res.json();
+      
+        if (data.error) {
+          document.getElementById("dataTable").innerHTML = data.error;
+          document.getElementById("question").innerHTML = "";
+        } else {
+          if (data.table) document.getElementById("dataTable").innerHTML = data.table;
+          if (data.clustered) document.getElementById("third").innerHTML = data.clustered;
+          document.getElementById("question").innerHTML = (data.note || "") + (data.quote || "");
+        }
+      });
+    </script>
   </body>
 </html>
+  
