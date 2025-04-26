@@ -25,7 +25,7 @@ def getFile():
     uploadedFileExtension = nameOfFile[len(nameOfFile)-1]
     if uploadedFileExtension in listOfExtension:
         file.save(filePath)
-        return detectType(uploadedFileExtension,filePath)#this fuction will detect the perticular type of file than detect the column contianing date,datetime or year 
+        return detectType(uploadedFileExtension,filePath,file.filename)#this fuction will detect the perticular type of file than detect the column contianing date,datetime or year 
     else:
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             error_html = render_template("partials/type_error.html", error=f"only {listOfExtension} files are allowed")
@@ -34,7 +34,7 @@ def getFile():
             return render_template("index.html", error=f"only {listOfExtension} files are allowed")
 
 
-def detectType(type,filePath):
+def detectType(type,filePath,fileName):
      #if The uploaded file is CSV
     if type == "csv":
         df = pd.read_csv(filePath)
@@ -46,7 +46,7 @@ def detectType(type,filePath):
         if 1 in  arr or 2 in arr or 3 in arr:#if has any datetime column it will render the form to ask cluster according to date time
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return {
-                        "table": render_template("partials/data_table.html", table=df.to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns)),
+                        "table": render_template("partials/data_table.html", table=df.to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns), fileName=fileName),
                         "note": render_template("partials/date_question.html", note="dateTime"),
                         "quote": ""
                     }

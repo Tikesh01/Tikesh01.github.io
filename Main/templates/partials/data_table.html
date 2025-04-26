@@ -1,9 +1,13 @@
 {% if table %}
   {{ table|safe }}
-  <p class="size">[ {{ noOfRows }} x {{noOfColumns}} ]</p>
+ 
 {% else %}
   <p style="text-align: center; color: gray; font-size: larger; margin: 4em 0;">
     <label for="getFile">Upload a file to see data here.</label>
   </p>
   <p style="color: rgb(217, 76, 76);">{{error}}</p>
 {% endif %}
+{% if table %}
+  <p class="size">[ {{ noOfRows }} x {{noOfColumns}} ] {{fileName}}</p>
+  {% else %}
+  {% endif %}
