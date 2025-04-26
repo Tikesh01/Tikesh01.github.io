@@ -79,14 +79,13 @@ main .main_container {
 }
 
 #main_container1 #explorebuttonli button {
-    padding: 1em 1.5em;
-    border-radius: 20px;
+    padding: 1em 1em;
+    width: auto;
+    border-radius: 40px;
     color: rgba(255, 255, 255, 0.808);
     background-color: rgba(0, 0, 0, 0.83);
     font-family: 'Roboto';
     border: none;
-    /* box-shadow: 0 2px 4px black; */
-    /* text-shadow: 2px 2px 3px black; */
     transition: background-color 1s ease, padding 1s ease;
 }
 
@@ -110,25 +109,28 @@ main .main_container {
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
+    display: flex;
+    align-items: center;
 }
 
 #main_container2 #inputField {
     width: 66.5%;
     margin: auto;
     border-radius: 30px;
-    height: 60%;
+    /* height: 60%; */
+    height: auto;
     border: rgb(0, 179, 255) solid 5px;
     background-color: rgba(0, 0, 0, 0.327);
     color: rgba(255, 255, 255, 0.907);
     padding: 1rem 2rem;
-    position:relative;
-    top:20%;
+    /* position:relative;
+    top:20%; */
 
 }
-#main_container2 #typeError{
+#main_container2 #inputField #typeError{
     text-align: center;
     margin: 1em 0;
-    background-color: #00c8ff;
+    color: rgb(189, 31, 31);
 }
 
 #main_container2 #inputField h1 {
