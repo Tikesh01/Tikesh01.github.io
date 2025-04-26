@@ -36,8 +36,6 @@ main .main_container {
     background: linear-gradient(135deg, #f9f9f9, #e6f7ff, #ffe6f2);
     background: rgb(235, 235, 235);
     padding: 3em 5em;
-    /* border-bottom: black solid 0.9em; */
-    /* box-shadow: 5px 5px 12px rgba(0, 0, 0, 0.768); */
 }
 
 #main_container1 li {
@@ -47,7 +45,6 @@ main .main_container {
 #main_container1 li h2 {
     color: rgba(0, 0, 0, 0.759);
     font-size: 5.5rem;
-    /* text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.792); */
     letter-spacing: 1px;
     transition: transform 0.3s ease, color 0.3s ease;
 }
@@ -60,7 +57,6 @@ main .main_container {
 #main_container1 li #withus {
     font-size: 4em;
     font-weight: bolder;
-    /* text-shadow: 2px 2px 7px rgba(0, 0, 0, 0.616); */
     float: left;
     transition: color 0.3s ease, border-right 0.3s ease, padding-right 0.3s ease, transform 0.3s ease;
     color: rgba(0, 0, 0, 0.842);
@@ -81,7 +77,7 @@ main .main_container {
 #main_container1 #explorebuttonli button {
     padding: 1em 1em;
     width: auto;
-    border-radius: 40px;
+    border-radius: 0px;
     color: rgba(255, 255, 255, 0.808);
     background-color: rgba(0, 0, 0, 0.83);
     font-family: 'Roboto';
