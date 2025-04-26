@@ -85,16 +85,13 @@
               <input type="file" name="file" id="getFile" required />
             </div>
             <button type="submit"><i class="fas fa-file-upload" style="margin-right: 6px;"></i>Upload</button>
-            {% include "partials/type_error.html" %}
           </form>
+          <h4 id="typeError"></h4>
         </div>
       </main>
       </section>
       <div id="second" class="data">
-        <h1><i class="fas fa-folder-open"></i> Your Data</h1>
-        <div id="dataTable">
-          {% include "partials/data_table.html" %}
-        </div>
+        {% include "partials/data_table.html" %}
       </div>
       <section id="question">
         {% include "partials/date_question.html" %}
@@ -161,10 +158,12 @@
         const data = await res.json();
       
         if (data.error) {
-          document.getElementById("dataTable").innerHTML = data.error;
+          document.getElementById("typeError").innerHTML = data.error;
           document.getElementById("question").innerHTML = "";
+          alert("Please upload a supported file");
         } else {
-          if (data.table) document.getElementById("dataTable").innerHTML = data.table;
+          alert("File Uploded succesfully! ")
+          if (data.table) document.getElementById("second").innerHTML = data.table;
           if (data.clustered) document.getElementById("third").innerHTML = data.clustered;
           document.getElementById("question").innerHTML = (data.note || "") + (data.quote || "");
         }

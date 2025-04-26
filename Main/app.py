@@ -7,6 +7,7 @@ from qiskit import QuantumCircuit
 
 app = Flask(__name__)
 env = Environment(autoescape=True)
+app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
 
 @app.route('/')
 def interface():
@@ -38,27 +39,27 @@ def detectType(type,filePath,fileName):
      #if The uploaded file is CSV
     if type == "csv":
         df = pd.read_csv(filePath)
-        df = df.dropna(how="all")  # Remove empty rows
-        app.config['df'] = df
+        os.remove(filePath)
+        app.config['df'] =  df.dropna(how="all")  # Remove empty rows
         columns = df.columns
         isDateTimeCol = detect_datetime_columns(df)
         arr = isDateTimeCol.values()
         if 1 in  arr or 2 in arr or 3 in arr:#if has any datetime column it will render the form to ask cluster according to date time
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return {
-                        "table": render_template("partials/data_table.html", table=df.to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns), fileName=fileName),
-                        "note": render_template("partials/date_question.html", note="dateTime"),
+                        "table": render_template("partials/data_table.html", table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns), fileName=fileName),
+                        "note": render_template("partials/date_question.html", note="dateTime", noOfRows=len(df.index), noOfColumns=len(columns)),
                         "quote": ""
                     }
         else:#otherWise ask for preferemce only
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return {
-                        "table": render_template("partials/data_table.html",table=df.to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns)),
+                        "table": render_template("partials/data_table.html",table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns), fileName =fileName),
                         "note": "",
-                        "quote": render_template("partials/priority_form.html", quote="NodateTimeOnlyPriority", columns=len(columns))
-                    }
+                        "quote": render_template("partials/priority_form.html", quote="NodateTimeOnlyPriority", columns=columns)
+                }
             else:
-                return render_template("index.html",)
+                return render_template("partials/data_table.html",table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns))
             
     if type == "xls" or "xlsx":
         pass
@@ -80,11 +81,11 @@ def check():
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             return {#It will render the form to ask preference
                 "quote": render_template("partials/priority_form.html", quote="Do you want Heirarchial clustering", columns=columns),
-                "table": render_template("partials/data_table.html", table=df.to_html(classes="UploadedData", border=0), noOfColumns=len(columns), noOfRows=len(df.index)),
+                "table": render_template("partials/data_table.html", table=(df.head(100)).to_html(classes="UploadedData", border=0), noOfColumns=len(columns), noOfRows=len(df.index)),
                 "note": ""
             }
         else:
-            return render_template("index.html",table=df.to_html(classes="UploadedData", border=0), noOfColumns=len(columns), noOfRows=len(df.index), quote="Do you want Heirarchial clustering", columns=columns)
+            return render_template("index.html",table=df.head(100).to_html(classes="UploadedData", border=0), noOfColumns=len(columns), noOfRows=len(df.index), quote="Do you want Heirarchial clustering", columns=columns)
 
 #================================================/////===========================================
 app.config['useDateTime'] = 0#if No date time column detected
@@ -99,7 +100,7 @@ def uploadFileToClust():
     print(f"Total columns = {noOfColumns}")
     print(f"Total rows = {noOfRows}")
     value = app.config['useDateTime']
-    # h=request.form.get()
+    # priorities = app.request.get(for i in column)
     if value != 0:
         sortAccordingToDateTime = detect_datetime_columns(mainDf)
         print(sortAccordingToDateTime)
@@ -109,17 +110,26 @@ def uploadFileToClust():
                     mainDf = clusterDateTimeCol(mainDf,col,sortAccordingToDateTime[col],True) 
                 if value == 2:
                     mainDf = clusterDateTimeCol(mainDf,col,sortAccordingToDateTime[col],False) 
-                    arrOfGroupNames = mainDf.index.get_level_values(0).unique()# this variable i containing the group names
             else:
                 continue
+    else: #if there i no column of datetime or selected not to clust acc to dt
+        mainDf=pd.DataFrame(data = np.arange(0,100).reshape(20,5))
+    
+    arrOfGroupNames = mainDf.index.get_level_values(0).unique()# this variable iS containing the group names
+# ------------------------------/////------------------
+    if len(arrOfGroupNames) !=0:
+        smallDf = mainDf.groupby(level=0).head(20)
+    else:
+        smallDf = mainDf.head(50)
+            
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return {
-            "table": render_template("partials/data_table.html", table=app.config['df'].to_html(classes="UploadedData", border=0), noOfColumns=noOfColumns, noOfRows=noOfRows),
-            "clustered": render_template("partials/clustered_data.html", clusteredData=mainDf.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows=noOfRows),
-            "quote": render_template("partials/priority_form.html", quote="Do you want Heirarchial clustering", columns=columns)
-        }
+                "table": render_template("partials/data_table.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), noOfColumns=noOfColumns, noOfRows=noOfRows),
+                "clustered": render_template("partials/clustered_data.html", clusteredData=smallDf.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows=noOfRows),
+                "quote": render_template("partials/priority_form.html", quote="Do you want Heirarchial clustering", columns=columns)
+            }     
     else:
-        return render_template("index.html", table=mainDf.to_html(classes="UploadedData", border=0), clusteredData=mainDf.to_html(classes="UploadedClusteredData", border=0), quote="Do you want Heirarchial clustering", noOfRows=noOfRows, noOfColumns=noOfColumns, columns=columns)
+        return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData= smallDf.to_html(classes="UploadedClusteredData", border=0), quote="Do you want Heirarchial clustering", noOfRows=noOfRows, noOfColumns=noOfColumns, columns=columns)        
 
 #================================================///////=============================================
 import re

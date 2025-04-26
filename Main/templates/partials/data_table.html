@@ -1,13 +1,12 @@
 {% if table %}
-  {{ table|safe }}
- 
-{% else %}
-  <p style="text-align: center; color: gray; font-size: larger; margin: 4em 0;">
-    <label for="getFile">Upload a file to see data here.</label>
-  </p>
-  <p style="color: rgb(217, 76, 76);">{{error}}</p>
-{% endif %}
-{% if table %}
+  <h1><i class="fas fa-folder-open"></i> Your Data</h1>
+  <div id="dataTable">
+    {{ table|safe }}
+  </div>
   <p class="size">[ {{ noOfRows }} x {{noOfColumns}} ] {{fileName}}</p>
-  {% else %}
-  {% endif %}
+{% else %}
+{% endif %}
+
+
+
+  
