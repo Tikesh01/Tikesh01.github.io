@@ -59,7 +59,7 @@ def detectType(type,filePath,fileName):
                         "quote": render_template("partials/priority_form.html", quote="NodateTimeOnlyPriority", columns=columns)
                 }
             else:
-                return render_template("partials/data_table.html",table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns))
+                return render_template("index.html",table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns))
             
     if type == "xls" or "xlsx":
         pass

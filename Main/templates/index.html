@@ -1,183 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" type="text/css" href="../static/style.css" />
-  <link rel="stylesheet" type="text/css" href="../static/style2.css" />
-  <link rel="stylesheet" type ="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QUBITSORT - Quantum-Powered Custom Clustering Application</title>
+
+  <link rel="stylesheet"  href="../static/style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
-
-  <link rel= "shortcut icon" type="icon/image" href="../static/clusterLogo-removebg-preview.webp" />
-  <title>QUBITSORT - Quantum-Powered Custom Clustering Appication</title>
-  
+  <link rel="shortcut icon" href="../static/clusterLogo-removebg-preview.webp" type="image/x-icon" />
 </head>
-  <body>
-    <section>
-    <ul type="none" id="header_and_navbaar">
-      <li>
-      <nav id="bigsize" class="Navbaar">
-        <ul type="none" id ="nav_container1" class="nav_container">
-          <li id="image"><img src="../static/clusterLogo-removebg-preview.webp" alt="Loading..." width="350px" height="350px" class="navbaar-img"></img></li>
-          <li id="headers">
-            <a href="">Products & Services</a>
-            <a href="">About Us</a>
-            <a href="">Home</a>
-            <a href="">Contact Us</a>
-            <a href="#">New</a>
-          </li>
-        </ul>
 
-        <ul type ="none" id="nav_container2" class="nav_container">
-          <li><a href="#"><i class="fab fa-instagram" id="navbar_instaicon"></i></a></li>
-          <li><button id="login" class="buttons">Sign in</button></li>
-          <!-- <li><button id="signup" class="buttons">Sign Up</button></li> -->
-        </ul>
-      </nav>
+<body>
+  <header class="navbar">
+    <div class="logo-container">
+      <img src="../static/clusterLogo-removebg-preview.webp" alt="QUBITSORT Logo" class="logo" />
+      <h1 class="logo-text">QUBITSORT</h1>
+    </div>
 
-      <nav id="smallerdevice" class="Navbaar">
-        <ul type ="none" id="bar_and_logo">
-          <li><i class="fas fa-bars"></i></li>
-          <li><img src="../static/clusterLogo-removebg-preview.webp" id= "smaller" alt ="Loading..." class="navbaar-img"></img><img class="navbaar-img" src="../static/clusterLogo-removebg-preview.webp" id="verysmaller"></img></li>
-          <li id="logoText" style="letter-spacing: 2px;"><h1>QUBITSORT</h2></li>
-        </ul>
-        <ul type="none" id="button_and_icon">
-          <li><a href="tel: +91 8770006085" alt="Wait a minut" ><i class="fas fa-phone"></i></a></li>
-          <li><a href="email: ts2665857@gmail.com" alt="Wait a minut" ><i class="fa-duotone fa-solid fa-envelope" style="--fa-primary-color: #ffd43b; --fa-secondary-color: pink;"></i></li></a></li>
-          <li><button id="login" class="buttons">Sign in</button></li>
-          <!-- <li><button id="signup" class="buttons">Sign Up</button></li> -->
-        </ul>
-      </nav></li>
-      <li id="header">
-        <header><p>Smarter Insights, Faster Decisions</p></header>
-      </li>
-    </ul>
-    </div>   
-    </section>
-    <section>      
-      <main>
-        <div class="main_container" id="main_container1">
-          <ul type="disc">
-            <li> <h2>A</h2><h2>c</h2><h2>c</h2><h2>e</h2><h2>l</h2><h2>e</h2><h2>r</h2><h2>a</h2><h2>t</h2><h2>e</h2></li>
-            <li><h2>G</h2><h2>r</h2><h2>o</h2><h2>w</h2><h2>t</h2><h2>h</h2><span>.....</span><h2>w</h2><h2>i</h2><h2>t</h2><h2>h</h2></li>
-            <li id="Quantum"><h2><i class="fas fa-atom" style="color: #361249;"></i></h2>
-              <h2>Q</h2><h2>u</h2><h2>a</h2><h2>n</h2><h2>t</h2><h2>u</h2><h2>m</h2></li>
-            <li><h1 id="withus">Clustering</h2></li>
-            <li id="explorebuttonli"><button link="#features"> <i class="fas fa-compass" style="margin-right: 6px;"></i>Explore</button></li>
-          </ul>
-        </div>
-      </main>
-        <div id="clusterImg">
-          <img src="../static/ClusteringImg-removebg-preview.webp" alt="img..." >
-        </div>
-      <main>
-        <div class="main_container" id="main_container2">
-          <form action="/uploader" method="Post" enctype="multipart/form-data" id="inputField">
-            <h1>Upload Your File</h2>
-            <div id="inputAndLabel">
-              <label >Choose File</label>
-              <label for="getFile" class="plus"><i class="fas fa-upload"></i>
-              </label>
-              <input type="file" name="file" id="getFile" required />
-            </div>
-            <button type="submit"><i class="fas fa-file-upload" style="margin-right: 6px;"></i>Upload</button>
-            <p id="typeError"></p>
-          </form>
-        </div>
-      </main>
-    </section>
-    <section> 
-      <div id="second" class="data">
-        {% include "partials/data_table.html" %}
-      </div>
-    </section>
-    <section id="question">
-        {% include "partials/date_question.html" %}
-        {% include "partials/priority_form.html" %}
-    </section>
-    <section>
-        <div id="third" class="data">
-        {% include "partials/clustered_data.html" %}
-        </div>
-    </section>
-      <section class="features-section" id="features">
-        <div class="features-container">
-          <h2 class="section-title">Why Choose Our Quantum Clustering?</h2>
-          <p class="tagline">Your data has answers — we help you find them.</p>
-      
-          <div class="features-grid">
-            <div class="feature-box">
-              <h3>🧠 Smart Clustering</h3>
-              <p>Detects hidden patterns in your data using quantum-powered insights.</p>
-            </div>
-            <div class="feature-box">
-              <h3>📁 Easy CSV Upload</h3>
-              <p>No tech knowledge needed. Just upload your file and go.</p>
-            </div>
-            <div class="feature-box">
-              <h3>📊 Visual Results</h3>
-              <p>See customer groups in clean, interactive tables & charts.</p>
-            </div>
-            <div class="feature-box">
-              <h3>🎯 Targeted Insights</h3>
-              <p>Find the right customer segment to boost your sales.</p>
-            </div>
-            <div class="feature-box">
-              <h3>⚡ Fast Processing</h3>
-              <p>Large files? No problem — Quantum makes it blazing fast.</p>
-            </div>
-            <div class="feature-box">
-              <h3>🕹️ Simple UI</h3>
-              <p>Built for small businesses but Big Data — clean, intuitive, and fast.</p>
-            </div>
-          </div>
-        </div>
-      </section>      
-      <footer class="footer">
-        <div class="footer-container">
-            <p>🚀 Powered by Quantum Intelligence | Fast & Smart Clustering</p>
-            <div class="footer-links">
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Contact Us</a>
-            </div>
-            <p class="footer-copy">© 2025 Quantum Clustering. All rights reserved.</p>
-        </div>
-    </footer>
-    <script>
-      document.getElementById("inputField").addEventListener("submit", async function (e) {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-      
-        const res = await fetch("/uploader", {
-          method: "POST",
-          body: formData,
-          headers: { "X-Requested-With": "XMLHttpRequest" }
-        });
-      
-        const data = await res.json();
-      
-        if (data.error) {
-          document.getElementById("typeError").innerHTML = data.error;
-          document.getElementById("question").innerHTML = "";
-          alert("Please upload a supported file");
-        } else {
-          if (data.table || data.note || data.quote)
-          { 
-            document.getElementById("second").innerHTML = data.table;
-            document.getElementById("question").innerHTML = (data.note || "") + (data.quote || "");
-            document.getElementById("question").scrollIntoView({"behavior" : "smooth"});//after file uploaded, scroll to form of date_question form
-            alert("File Uploded succesfully! ");
+    <nav class="nav-links">
+      <a href="#">Products</a>
+      <a href="#">About</a>
+      <a href="#">Home</a>
+      <a href="#">Contact</a>
+      <button class="sign-btn">Sign In</button>
+    </nav>
+  </header>
+
+  <main class="hero-section">
+    <div class="hero-text">
+      <h2>Smarter Insights, Faster Decisions</h2>
+      <p>Accelerate Growth with <i class="fas fa-atom"></i> Quantum Clustering</p>
+      <button class="explore-btn">Explore</button>
+    </div>
+    <div class="hero-image">
+      <img src="/static/ClusteringImg-removebg-preview.webp" alt="Cluster Image" />
+    </div>
+  </main>
+
+  <section class="upload-section">
+    <form action="/uploader" method="POST" enctype="multipart/form-data" id="uploader-form" class="upload-form">
+      <h2>Upload Your File</h2>
+      <label for="file-upload" class="custom-file-upload">
+        <i class="fas fa-upload"></i> Choose File
+      </label>
+      <input id="file-upload" type="file" name="file" required />
+      <button type="submit" class="upload-btn">Upload</button>
+      <p id="typeError">{% include "partials/type_error.html" %}</p>
+    </form>
+  </section>
+
+  <section class="dynamic-sections">
+    <div id="tableOfUplodedData" class="data">{% include "partials/data_table.html" %}</div>
+    <div class="question" id="date">{% include "partials/date_question.html" %}</div>
+    <div class="question" id="prio">{% include "partials/priority_form.html" %}</div>
+    <div id="tableOfCLustData" class="data">{% include "partials/clustered_data.html" %}</div>
+  </section>
+
+  <section class="features-section">
+    <h2>Why Choose Our Quantum Clustering?</h2>
+    <p>Your data has answers — we help you find them.</p>
+
+    <div class="features-grid">
+      <div class="feature-item">🧠 Smart Clustering</div>
+      <div class="feature-item">📁 Easy CSV Upload</div>
+      <div class="feature-item">📊 Visual Results</div>
+      <div class="feature-item">🎯 Targeted Insights</div>
+      <div class="feature-item">⚡ Fast Processing</div>
+      <div class="feature-item">🕹️ Simple UI</div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>🚀 Powered by Quantum Intelligence | Fast & Smart Clustering</p>
+    <div class="footer-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Contact Us</a>
+    </div>
+    <p>© 2025 Quantum Clustering. All rights reserved.</p>
+  </footer>
+  <script>
+    document.getElementById("uploader-form").addEventListener("submit", async function (e) {
+      e.preventDefault();
+      const formData = new FormData(e.target);
+    
+      const res = await fetch("/uploader", {
+        method: "POST",
+        body: formData,
+        headers: { "X-Requested-With": "XMLHttpRequest" }
+      });
+    
+      const data = await res.json();
+    
+      if (data.error) {
+        document.getElementById("typeError").innerHTML = data.error;
+        
+        const questions = document.getElementsByClassName("question");
+        for (let i = 0; i < questions.length; i++) {
+          questions[i].innerHTML = "";
+        }
+        alert("Please upload a supported file");
+      } else {
+        if (data.table) {
+          document.getElementById("tableOfUplodedData").innerHTML = data.table; // Fix typo: tableOfUplodedData
+        }
+        if (data.quote || data.note) {
+          if(data.note){
+            document.getElementById("date").innerHTML = data.note;
           }
-          if (data.clustered){
-            document.getElementById("third").innerHTML = data.clustered;
-            alert("File Clustered succesfully! ");
+          if(data.quote){
+            document.getElementById("prio").innerHTML = data.quote;
           }
         }
-      });
+        if (data.clustered) {
+          document.getElementById("tableOfCLustData").innerHTML = data.clustered; // Fix typo: tableOfCLustData
+        }
+    
+        // Scroll behavior — fix
+        if (data.clustered) {
+          document.getElementById("tableOfCLustData").scrollIntoView({ behavior: "smooth" });
+          alert("File Clustered successfully!");
+        } else if (data.note || data.quote) {
+          const questions = document.getElementsByClassName("question");
+          if (questions.length > 0) {
+            questions[0].scrollIntoView({ behavior: "smooth" });
+          }
+          alert("File Uploaded successfully!");
+        } else if (data.table) {
+          document.getElementById("tableOfUplodedData").scrollIntoView({ behavior: "smooth" });
+          alert("File Uploaded successfully!");
+        }
+      }
+    });
     </script>
-  </body>
+    
+</body>
 </html>
-  
