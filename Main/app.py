@@ -100,7 +100,12 @@ def uploadFileToClust():
     print(f"Total columns = {noOfColumns}")
     print(f"Total rows = {noOfRows}")
     value = app.config['useDateTime']
-    # priorities = app.request.get(for i in column)
+    priorities = {i: None for i in columns}
+    for i in columns:
+        priorities[i] = request.form.get(f'{i}')
+    priorities = {key: value for key,value in priorities.items() if value}
+    priorities = dict(sorted(priorities.items()))
+    print(f"priorities = {priorities}")
     if value != 0:#IF IT is being clustered according o date time 
         sortAccordingToDateTime = detect_datetime_columns(mainDf)
         print(sortAccordingToDateTime)
@@ -142,7 +147,14 @@ def detect_datetime_columns(df):
         # Handle if column is numeric and looks like a year
         if pd.api.types.is_integer_dtype(col_data) or pd.api.types.is_float_dtype(col_data):
             if col_data.dropna().empty == False:
-                if col_data.dropna().between(1800, 2100).all():
+            # Check if float values have only 2 decimal places
+                if pd.api.types.is_float_dtype(col_data):
+                    if col_data.dropna().apply(lambda x: round(x, 2) == x).all():
+                        if col_data.dropna().between(1800, 2100).all():
+                            result[col] = 1  # Only year
+                            continue
+                # For integer values
+                elif col_data.dropna().between(1800, 2100).all():
                     result[col] = 1  # Only year
                     continue
 
@@ -186,7 +198,10 @@ def clusterDateTimeCol(fContent, col,no,ascending):
                 return fContent# All values are zero or empty-like
             
             # Try parsing
-            parsed_col = pd.to_datetime(fContent[col], errors='raise', dayfirst=True)
+            try:
+                parsed_col = pd.to_datetime(fContent[col], errors='raise')
+            except:
+                parsed_col = pd.to_datetime(fContent[col], dayfirst=True, errors='raise')
                
             if all(parsed_col.dt.time == pd.to_datetime('00:00:00').time()) and no == 2:  # Only date
                 fContent[col] = parsed_col
@@ -205,12 +220,10 @@ def clusterDateTimeCol(fContent, col,no,ascending):
    
     return fContent 
 
-# ===============================================///////==============================================
+# ===============================================///==========================================
 #fuction which will sort the dates if the df has date containing columns
 def clean_and_sort_date_column(dff, column_name, ascending=True):
         try:
-            # Step 1: Convert to datetime (handles multiple formats)
-            dff[column_name] = pd.to_datetime(dff[column_name], errors='coerce', dayfirst=True)
             
             # Step 2: Drop NaT (invalid formats)
             dff = dff.dropna(subset=[column_name])

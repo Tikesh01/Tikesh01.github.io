@@ -1,4 +1,4 @@
-# cluster_based_quantum_sort("../customers-1000.csv",sort_column="Country",n_clusters=10)
+// # cluster_based_quantum_sort("../customers-1000.csv",sort_column="Country",n_clusters=10)
 from qiskit_aer import Aer
 from qiskit import QuantumCircuit
 import pandas as pd
