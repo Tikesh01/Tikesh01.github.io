@@ -177,9 +177,14 @@ body,html{
       flex-direction: column;
       text-align: center;
     }
+    .navbar{
+      padding: 1rem 1.5rem;
+    }
   
     .nav-links {
-      display: none;
+      a{
+        display: none;
+      }
     }
   
     .logo-text {
@@ -188,7 +193,6 @@ body,html{
   
     .sign-btn {
       display: block;
-      margin-top: 10px;
     }
   }
 /* ///////////////////////////////////////////===============//////////////////////////////////////////// */
@@ -208,7 +212,9 @@ body,html{
       max-height: 30em;
       overflow: auto;
       background-color: #e7e6e8;
-
+      border: 2px solid black;
+      border-radius: 12px;
+      padding: 0.1em 0.1em;
     }
   }
   /* Enhanced Table Styling */
@@ -228,17 +234,20 @@ body,html{
   color: #ffffff;
   font-size: 1rem;
   font-weight: 600;
-  /* padding: 1em; */
+  padding: 0.3em;
+  border: 1px solid black;
   text-align: center;
 }
 
 /* Table body rows */
 .UploadedData tbody td, .UploadedClusteredData tbody td {
-  /* padding: 0.8em; */
+  padding: 0.2em;
   text-align: center;
   font-size: 0.95rem;
   color: #333;
   border-bottom: 1px solid #eeeeee;
+  border: 1px solid black;
+
 }
 
 /* Alternating row colors */
@@ -336,6 +345,16 @@ body,html{
   }
 }
 @media (max-width: 768px) {
+  .dynamic-sections
+  {
+    .data{
+      height: auto;
+      #dataTable,#clusteredTable{
+        max-height: 22em;
+
+      }
+    }
+  }
     .UploadedData, .UploadedClusteredData {
       font-size: 0.85rem;
     }

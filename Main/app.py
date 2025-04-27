@@ -101,7 +101,7 @@ def uploadFileToClust():
     print(f"Total rows = {noOfRows}")
     value = app.config['useDateTime']
     # priorities = app.request.get(for i in column)
-    if value != 0:
+    if value != 0:#IF IT is being clustered according o date time 
         sortAccordingToDateTime = detect_datetime_columns(mainDf)
         print(sortAccordingToDateTime)
         for col in mainDf.columns:

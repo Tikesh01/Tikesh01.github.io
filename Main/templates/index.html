@@ -31,10 +31,10 @@
     <div class="hero-text">
       <h2>Smarter Insights, Faster Decisions</h2>
       <p>Accelerate Growth with <i class="fas fa-atom"></i> Quantum Clustering</p>
-      <button class="explore-btn">Explore</button>
+      <a href="#f"><button class="explore-btn">Explore</button></a>
     </div>
     <div class="hero-image">
-      <img src="/static/ClusteringImg-removebg-preview.webp" alt="Cluster Image" />
+      <img src="../static/ClusteringImg-removebg-preview.webp" alt="Cluster Image" />
     </div>
   </main>
 
@@ -57,9 +57,9 @@
     <div id="tableOfCLustData" class="data">{% include "partials/clustered_data.html" %}</div>
   </section>
 
-  <section class="features-section">
+  <section class="features-section" id="f">
     <h2>Why Choose Our Quantum Clustering?</h2>
-    <p>Your data has answers — we help you find them.</p>
+    <i>Your data has answers — we help you find them.</i>
 
     <div class="features-grid">
       <div class="feature-item">🧠 Smart Clustering</div>
@@ -119,16 +119,19 @@
     
         // Scroll behavior — fix
         if (data.clustered) {
-          document.getElementById("tableOfCLustData").scrollIntoView({ behavior: "smooth" });
+          document.getElementById("tableOfCLustData").scrollIntoView({ behavior: "auto" });
           alert("File Clustered successfully!");
         } else if (data.note || data.quote) {
-          const questions = document.getElementsByClassName("question");
-          if (questions.length > 0) {
-            questions[0].scrollIntoView({ behavior: "smooth" });
+          if(data.quote){
+            document.getElementById("date").scrollIntoView({"behavior" : "auto"});
+          }
+          if(data.note)
+          {
+            document.getElementById("prio").scrollIntoView({"behavior" : "auto"});
           }
           alert("File Uploaded successfully!");
         } else if (data.table) {
-          document.getElementById("tableOfUplodedData").scrollIntoView({ behavior: "smooth" });
+          document.getElementById("tableOfUplodedData").scrollIntoView({ "behavior" : "auto" });
           alert("File Uploaded successfully!");
         }
       }
