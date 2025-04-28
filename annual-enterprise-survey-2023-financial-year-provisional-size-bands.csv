@@ -62,7 +62,7 @@ year,industry_code_ANZSIC,industry_name_ANZSIC,rme_size_grp,variable,value,unit
 2011,A,"Agriculture, Forestry and Fishing",g_100-199,Total expenditure,333,DOLLARS(millions)
 2011,A,"Agriculture, Forestry and Fishing",g_100-199,Operating profit before tax,37,DOLLARS(millions)
 2011,A,"Agriculture, Forestry and Fishing",g_100-199,Total assets,807,DOLLARS(millions)
-2011,A,"Agriculture, Forestry and Fishing",g_100-199,Fixed tangible assets,C,DOLLARS(millions)
+2011,A,"Agriculture, Forestry and Fishing",g_100-199,Fixed tangible assets,0,DOLLARS(millions)
 2011,A,"Agriculture, Forestry and Fishing",h_200+,Activity unit,15,COUNT
 2011,A,"Agriculture, Forestry and Fishing",h_200+,Rolling mean employees,6120,COUNT
 2011,A,"Agriculture, Forestry and Fishing",h_200+,Salaries and wages paid,173,DOLLARS(millions)

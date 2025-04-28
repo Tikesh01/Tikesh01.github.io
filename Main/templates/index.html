@@ -115,10 +115,12 @@
         }
         if (data.clustered) {
           document.getElementById("tableOfCLustData").innerHTML = data.clustered; // Fix typo: tableOfCLustData
+          document.getElementById("tableOfCLustData").scrollIntoView({ behavior: "auto" });
+          alert("File Clustered successfully!");
         }
     
         // Scroll behavior — fix
-        if (data.clustered) {
+        else if (data.clustered) {
           document.getElementById("tableOfCLustData").scrollIntoView({ behavior: "auto" });
           alert("File Clustered successfully!");
         } else if (data.note || data.quote) {

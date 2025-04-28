@@ -270,9 +270,35 @@ body,html{
 
 /* Smooth scrolling on table update */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { 
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+/* Transition states */
+.hero-section,
+.upload-section,
+.dynamic-sections .data,
+.dynamic-sections .question {
+  transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
 .UploadedData, .UploadedClusteredData {
   animation: fadeIn 0.5s ease;
 }
