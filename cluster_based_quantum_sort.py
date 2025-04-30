@@ -3,21 +3,47 @@ import numpy as np
 from sklearn.cluster import KMeans
 from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit_aer import Aer
+import time
 
+# Function to create an oracle for Grover's algorithm. The oracle marks the target index by applying a phase flip.
+# It uses different strategies based on the number of qubits to handle the phase kickback and multi-controlled operations.
 def create_oracle(values, target_idx, num_qubits):
     oracle = QuantumCircuit(num_qubits)
+    
     # Apply phase kickback for the target index
     for i in range(num_qubits):
         if (target_idx >> i) & 1:
             oracle.x(i)
-    oracle.h(num_qubits - 1)
-    oracle.mcx(list(range(num_qubits - 1)), num_qubits - 1)
-    oracle.h(num_qubits - 1)
+    
+    # Handle different cases based on number of qubits
+    if num_qubits == 1:
+        # For single qubit, just apply phase flip if needed
+        oracle.h(0)
+        oracle.z(0)  # Phase flip
+        oracle.h(0)
+    elif num_qubits > 3:
+        # Use intermediate qubits for large controls
+        mid = num_qubits // 2
+        oracle.h(num_qubits - 1)
+        oracle.mcx(list(range(mid)), mid)
+        oracle.mcx(list(range(mid, num_qubits - 1)), num_qubits - 1)
+        oracle.h(num_qubits - 1)
+    else:
+        # For 2-3 qubits, use direct mcx
+        oracle.h(num_qubits - 1)
+        if num_qubits == 2:
+            oracle.cx(0, 1)
+        else:
+            oracle.mcx(list(range(num_qubits - 1)), num_qubits - 1)
+    
+    # Restore input states
     for i in range(num_qubits):
         if (target_idx >> i) & 1:
             oracle.x(i)
     return oracle
 
+# Function to create the diffusion operator (also known as the Grover operator) for Grover's algorithm.
+# The diffusion operator amplifies the amplitude of the marked state by inverting the amplitudes about the mean.
 def create_diffusion(num_qubits):
     diffusion = QuantumCircuit(num_qubits)
     # Apply H gates to all qubits
@@ -28,7 +54,7 @@ def create_diffusion(num_qubits):
         diffusion.x(qubit)
     # Apply multi-controlled Z gate
     diffusion.h(num_qubits - 1)
-    diffusion.mcx(list(range(num_qubits - 1)), num_qubits - 1)
+    diffusion.mcx(list(range(1, num_qubits - 1)), num_qubits - 1)
     diffusion.h(num_qubits - 1)
     # Apply X gates to all qubits
     for qubit in range(num_qubits):
@@ -38,6 +64,8 @@ def create_diffusion(num_qubits):
         diffusion.h(qubit)
     return diffusion
 
+# Function to find the index of the minimum value in a list using Grover's algorithm.
+# It initializes a quantum circuit, applies Grover's algorithm, and measures the result to find the minimum index.
 def grover_find_min_index(values):
     n = len(values)
     num_bits = int(np.ceil(np.log2(n)))
@@ -78,6 +106,8 @@ def grover_find_min_index(values):
     
     return measured_index % n
 
+# Function to sort a DataFrame cluster using Grover's algorithm to find the minimum value iteratively.
+# It repeatedly finds the minimum value in the cluster and appends it to the sorted list until the cluster is empty.
 def quantum_sort_cluster(cluster_df, sort_column):
     df = cluster_df.copy().reset_index(drop=True)
     sorted_rows = []
@@ -95,26 +125,30 @@ def quantum_sort_cluster(cluster_df, sort_column):
 
     return pd.DataFrame(sorted_rows)
 
-def cluster_based_quantum_sort(input_csv, sort_column, n_clusters=20, output_csv='cluster_sorted.csv'):
+# Main function to perform cluster-based quantum sorting on a CSV file.
+# It reads the input CSV, performs clustering, sorts each cluster using quantum_sort_cluster, and saves the final sorted data.
+def cluster_based_quantum_sort(input_csv, sort_column, n_clusters=4, output_csv='cluster_sorted.csv'):
+    #input_csv = file which is going to be sorted, sort_column -> column in csv file acc to which it will be cluster, n_clusters=4, how many clusters do you want.
     df = pd.read_csv(input_csv)
     df = df.dropna()
     
-    if sort_column not in df.columns:
+    if sort_column not in df.columns:# if  collumn is not in csv file raise error
         print(f"Column '{sort_column}' not found.")
         return
 
     print("Original Data:\n", df)
 
-    # Clustering
+    # Classical Clustering 
     clustering_data = df[[sort_column]]
-    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
-    df['cluster'] = kmeans.fit_predict(clustering_data)
-
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)#KMeans is being applied which will give cluster ids
+    df['cluster'] = kmeans.fit_predict(clustering_data) #a new col 'cluster' is created which holds the id of each row
     all_sorted = []
   
+    #start grouping the clusters acc to similar ids
     for cluster_id in range(n_clusters):
-        cluster_df = df[df['cluster'] == cluster_id].drop(columns=['cluster'])
+        cluster_df = df[df['cluster'] == cluster_id].drop(columns=['cluster'])#it is df of similar clustered ids 
         print(f"\nSorting Cluster {cluster_id} (size {len(cluster_df)}):")
+        #now quantum sort is going to be applied in each of cluster df -> cluster_df
         sorted_cluster = quantum_sort_cluster(cluster_df, sort_column)
         all_sorted.append(sorted_cluster)
 
@@ -129,4 +163,4 @@ def cluster_based_quantum_sort(input_csv, sort_column, n_clusters=20, output_csv
     print(f"\nSorted data saved to '{output_csv}'.")
 
 if __name__ == "__main__":
-    cluster_based_quantum_sort("business-financial-data-december-2024-quarter-csv.csv", sort_column="Data_value", n_clusters=2)
+    cluster_based_quantum_sort( 'Iris - all-numbers.csv', sort_column="3.5", n_clusters=2)
