@@ -5,6 +5,7 @@ from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit_aer import Aer
 import time
 
+st=time.time()
 # Function to create an oracle for Grover's algorithm. The oracle marks the target index by applying a phase flip.
 # It uses different strategies based on the number of qubits to handle the phase kickback and multi-controlled operations.
 def create_oracle(values, target_idx, num_qubits):
@@ -45,57 +46,70 @@ def create_oracle(values, target_idx, num_qubits):
 # Function to create the diffusion operator (also known as the Grover operator) for Grover's algorithm.
 # The diffusion operator amplifies the amplitude of the marked state by inverting the amplitudes about the mean.
 def create_diffusion(num_qubits):
-    diffusion = QuantumCircuit(num_qubits)
-    # Apply H gates to all qubits
+    # Create circuit with one additional ancilla qubit
+    diffusion = QuantumCircuit(num_qubits + 1)
+    
+    # Apply H gates to data qubits
     for qubit in range(num_qubits):
         diffusion.h(qubit)
-    # Apply X gates to all qubits
+    
+    # Apply X gates to data qubits
     for qubit in range(num_qubits):
         diffusion.x(qubit)
-    # Apply multi-controlled Z gate
-    diffusion.h(num_qubits - 1)
-    diffusion.mcx(list(range(1, num_qubits - 1)), num_qubits - 1)
-    diffusion.h(num_qubits - 1)
-    # Apply X gates to all qubits
+    
+    # Use the last qubit as target and apply controlled operations in chunks
+    chunk_size = 3  # Maximum number of control qubits per operation
+    for i in range(0, num_qubits - 1, chunk_size):
+        control_qubits = list(range(i, min(i + chunk_size, num_qubits - 1)))
+        if len(control_qubits) > 0:
+            diffusion.h(num_qubits)  # Apply H to ancilla
+            diffusion.mcx(control_qubits, num_qubits)  # Multi-controlled X with limited controls
+            diffusion.h(num_qubits)  # Apply H to ancilla
+    
+    # Apply X gates to data qubits
     for qubit in range(num_qubits):
         diffusion.x(qubit)
-    # Apply H gates to all qubits
+    
+    # Apply H gates to data qubits
     for qubit in range(num_qubits):
         diffusion.h(qubit)
+    
     return diffusion
 
 # Function to find the index of the minimum value in a list using Grover's algorithm.
 # It initializes a quantum circuit, applies Grover's algorithm, and measures the result to find the minimum index.
 def grover_find_min_index(values):
     n = len(values)
-    num_bits = int(np.ceil(np.log2(n)))
+    num_bits = max(1, int(np.ceil(np.log2(n))))  # Ensure at least 1 qubit
     
-    # Find the minimum value index
+    # Find the minimum value index first (this will be our marked state)
     min_idx = np.argmin(values)
     
-    # Create quantum circuit
-    qr = QuantumRegister(num_bits)
-    cr = ClassicalRegister(num_bits)
+    # Create quantum circuit with an extra ancilla qubit
+    qr = QuantumRegister(num_bits + 1, 'q')  # Add one ancilla qubit
+    cr = ClassicalRegister(num_bits, 'c')     # We only measure the data qubits
     circuit = QuantumCircuit(qr, cr)
     
-    # Initialize superposition
-    circuit.h(range(num_bits))
+    # Initialize superposition on data qubits
+    for i in range(num_bits):
+        circuit.h(qr[i])
     
     # Number of Grover iterations
     iterations = int(np.pi/4 * np.sqrt(2**num_bits))
     
     # Apply Grover's algorithm
-    oracle = create_oracle(values, min_idx, num_bits)
+    oracle = create_oracle(values, min_idx, num_bits + 1)
     diffusion = create_diffusion(num_bits)
     
     for _ in range(iterations):
         circuit = circuit.compose(oracle)
         circuit = circuit.compose(diffusion)
     
-    # Measure
-    circuit.measure(qr, cr)
+    # Measure data qubits
+    for i in range(num_bits):
+        circuit.measure(qr[i], cr[i])
     
-    # Run the circuit using AerSimulator
+    # Run the circuit
     backend = Aer.get_backend('aer_simulator')
     result = backend.run(circuit, shots=1000).result()
     counts = result.get_counts()
@@ -143,7 +157,6 @@ def cluster_based_quantum_sort(input_csv, sort_column, n_clusters=4, output_csv=
     kmeans = KMeans(n_clusters=n_clusters, random_state=42)#KMeans is being applied which will give cluster ids
     df['cluster'] = kmeans.fit_predict(clustering_data) #a new col 'cluster' is created which holds the id of each row
     all_sorted = []
-  
     #start grouping the clusters acc to similar ids
     for cluster_id in range(n_clusters):
         cluster_df = df[df['cluster'] == cluster_id].drop(columns=['cluster'])#it is df of similar clustered ids 
@@ -162,5 +175,8 @@ def cluster_based_quantum_sort(input_csv, sort_column, n_clusters=4, output_csv=
     final_sorted_df.to_csv(output_csv, index=False)
     print(f"\nSorted data saved to '{output_csv}'.")
 
+    et = time.time()
+    tt = et-st
+    print(f"Total time = {tt}")
 if __name__ == "__main__":
-    cluster_based_quantum_sort( 'Iris - all-numbers.csv', sort_column="3.5", n_clusters=2)
+    cluster_based_quantum_sort( 'iris - all-numbers.csv', sort_column="3.5", n_clusters=2)
