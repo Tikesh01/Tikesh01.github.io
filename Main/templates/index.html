@@ -102,7 +102,9 @@
         alert("Please upload a supported file");
       } else {
         if (data.table) {
-          document.getElementById("tableOfUplodedData").innerHTML = data.table; // Fix typo: tableOfUplodedData
+          alert("File uploaded succesfully");
+          document.getElementById("tableOfUplodedData").innerHTML = data.table; // Fix typo: 
+          // tableOfUplodedData
         }
         if (data.quote) {
           if(data.quote){

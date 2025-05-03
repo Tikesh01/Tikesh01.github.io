@@ -68,6 +68,9 @@ def uploadFileToClust():
     priorities = {}
     for i in columns:
         priorities[i] = request.form.get(f'{i}')
+    decending = request.form.get('dec')
+    if decending == 1:
+        decending == False
     priorities = {key: value for key,value in priorities.items() if value}
     priorities = dict(sorted(priorities.items(),key=lambda item: item[1]))
     print(f"priorities = {priorities}")
@@ -80,6 +83,16 @@ def uploadFileToClust():
     else:
         r = detectColumns(mainDf, priorities.keys())
         print(r)
+        for i in r.keys():
+            if r[i] !=0:
+                if r[i] == 'rollNo':
+                    pass
+                if r[i] == 'yearOnly':
+                    mainDf = clusterDateTimeCol(mainDf, i,1)
+                if r[i] == 'dateOnly':
+                    mainDf = clusterDateTimeCol(mainDf,i,2)
+                if r[i] == 'dateAndTime':
+                    mainDf = clusterDateTimeCol(mainDf, i, 3)
 
     arrOfGroupNames = mainDf.index.get_level_values(0).unique() if isinstance(mainDf.index, pd.MultiIndex) else []
 
@@ -100,82 +113,81 @@ import re
 def detectColumns(df, prioColumns):
     result = {}    
     for col in prioColumns:
-        col_data = df[col]
-        #detect if has roll no
-        if (pd.api.types.is_integer_dtype(col_data)) : # main thing for being roll no
-                stringRoll = {}
-                #trying to convert the int type into string type
-                try:
-                # they are array of type string
-                    stringRoll['strS'] =[str(i) for i in (col_data.head(10))]#first 10 nums
-                    stringRoll['strM'] = [str(i) for i in col_data.iloc[int(len(col_data)/2)-5: int(len(col_data)/2)+5]]#mid 10 nums in string
-                    stringRoll['strE'] =  [str(i) for i in col_data.iloc[len(col_data)-10:len(col_data)]]
-                    arr = np.array(list(stringRoll.values()))
-                    arr = (arr.flatten())
-                    lenOfEachEleInKeys= {}
-                    for i in stringRoll.keys():#this is iterating for keys 
-                        for j in stringRoll[i]:# this is iterating for 10 values in each keys 
-                                if (len(j) == len(stringRoll[i][1])) and len(j) >= 5: #checking for each roll if they are of same length
-                                    lenOfEachEleInKeys[i] = len(j)
-                                    # print("almost")
-                                else:
-                                    result [col] =0
-                                    continue 
-                                    
-                        if len(set(lenOfEachEleInKeys.values())) == 1:
-                            isSame = all((x.startswith(arr[1][0])) for x in arr)
-                            print(isSame)
-                            if isSame:
-                                result[col] = 4 # if it is a roll No
-                                print("done")
-                                continue
-                            else:
-                                print("already Sorted")
-                except:
-                    print("except")
-                    result[col] = 0
-                    continue
-    
-        # Handle if column is numeric and looks like a year
-        elif pd.api.types.is_integer_dtype(col_data) or pd.api.types.is_float_dtype(col_data):
-            if col_data.dropna().empty == False:
-            # Check if float values have only 2 decimal places
-                if pd.api.types.is_float_dtype(col_data):
-                    if col_data.dropna().apply(lambda x: round(x, 2) == x).all():
-                        if col_data.dropna().between(1800, 2100).all():
-                            result[col] = 1  # Only year
-                            continue
-                # For integer values
-                elif col_data.dropna().between(1800, 2100).all():
-                    result[col] = 1  # Only year
-                    continue
-
-        # Convert to string for flexible matching
-        col_str = df[col].astype(str).str.strip()
-
-        # Handle year-like strings
-        if col_str.str.match(r'^\d{4}$').all():
-            print("date is str")
-            if col_str.astype(int).between(1800, 2100).all():
-                result[col] = 1  # Only year
-                continue
-
-        # Check if values have full date (yyyy-mm-dd, dd-mm-yyyy, etc.)
-        if col_str.str.match(r'^\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}$').all():
-            result[col] = 2  # Only date
-            continue
-
-        # Check if values have date AND time
-        if col_str.str.contains(r'\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}.*\d{1,2}:\d{2}').all():
-            result[col] = 3  # Date + Time
-            continue
-
-        # Else not a recognized datetime pattern
+        # Initialize result as 0 (unrecognized type)
         result[col] = 0
-
+        
+        col_data = df[col]
+        col_str = df[col].astype(str).str.strip()
+        
+        # 1. Check for Roll Numbers (type 4)
+        if pd.api.types.is_integer_dtype(col_data):
+            if check_roll_number(col_data):
+                result[col] = 'rollNo'
+                continue
+        
+        # 2. Check for Year values (type 1)
+        if check_year_values(col_data, col_str):
+            result[col] = 'yearOnly'
+            continue
+            
+        # 3. Check for Date values (type 2)
+        if check_date_format(col_str):
+            result[col] = 'dateOnly'
+            continue
+            
+        # 4. Check for DateTime values (type 3)
+        if check_datetime_format(col_str):
+            result[col] = 'dateAndTime'
+            continue
+    
     return result
 
-def clusterDateTimeCol(fContent, col,no,ascending):
+def check_roll_number(col_data):
+    try:
+        # Convert numbers to strings for checking patterns
+        sample_start = [str(i) for i in col_data.head(10)]
+        sample_middle = [str(i) for i in col_data.iloc[int(len(col_data)/2)-5:int(len(col_data)/2)+5]]
+        sample_end = [str(i) for i in col_data.iloc[-10:]]
+        
+        # Combine samples
+        samples = sample_start + sample_middle + sample_end
+        
+        # Check if all numbers have the same length and >= 5 digits
+        if len(set(len(str(x)) for x in samples)) == 1:
+            length = len(str(samples[0]))
+            if length >= 5:
+                # Check if all numbers start with the same digit
+                first_digit = str(samples[0])[0]
+                return all(str(x).startswith(first_digit) for x in samples)
+    except:
+        pass
+    return False
+
+def check_year_values(col_data, col_str):
+    # Handle if column is numeric and looks like a year
+    if pd.api.types.is_integer_dtype(col_data) or pd.api.types.is_float_dtype(col_data):
+        if col_data.dropna().empty == False:
+            if pd.api.types.is_float_dtype(col_data):
+            # Check if float values have only 2 decimal places
+                if col_data.dropna().apply(lambda x: round(x, 2) == x).all():
+                    if col_data.dropna().between(1800, 2100).all():
+                        return True # Only year
+            # For integer values
+            elif col_data.dropna().between(1800, 2100).all():
+                True # Only year
+    return False
+
+def check_date_format(col_str):
+    # Check for common date formats (yyyy-mm-dd, dd-mm-yyyy, etc.)
+    date_pattern = r'^\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}$'
+    return col_str.str.match(date_pattern).all()
+
+def check_datetime_format(col_str):
+    # Check for datetime format (date + time)
+    datetime_pattern = r'\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}.*\d{1,2}:\d{2}'
+    return col_str.str.contains(datetime_pattern).all()
+
+def clusterDateTimeCol(fContent, col,no,ascending=True):
     if no ==1:
         # Try to detect and sort if the column is just year values
         fContent = fContent.sort_values(by=col,ignore_index=True, ascending=ascending)
