@@ -42,9 +42,9 @@ def detectType(type,filePath,fileName):
         os.remove(filePath)
         app.config['df'] =  df.dropna(how="all")  # Remove empty rows
         columns = df.columns
-        isDateTimeCol = detect_datetime_columns(df)
+        isDateTimeCol = detectColumns(df)
         arr = isDateTimeCol.values()
-        if 1 in  arr or 2 in arr or 3 in arr:#if has any datetime column it will render the form to ask cluster according to date time
+        if (1 in  arr or 2 in arr or 3 in arr):#if has any datetime column it will render the form to ask cluster according to date time
             if request.headers.get("X-Requested-With") == "XMLHttpRequest":
                 return {
                         "table": render_template("partials/data_table.html", table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns), fileName=fileName),
@@ -104,12 +104,14 @@ def uploadFileToClust():
     for i in columns:
         priorities[i] = request.form.get(f'{i}')
     priorities = {key: value for key,value in priorities.items() if value}
-    priorities = dict(sorted(priorities.items()))
+    priorities = dict(sorted(priorities.items(),key=lambda item: item[1]))
     print(f"priorities = {priorities}")
+    sortAccordingTo = detectColumns(mainDf) 
+    print(sortAccordingTo)
     if value != 0:#IF IT is being clustered according o date time 
-        sortAccordingToDateTime = detect_datetime_columns(mainDf)
+        sortAccordingToDateTime =  {k: v for k, v in sortAccordingTo.items() if v in [1,2,3]}
         print(sortAccordingToDateTime)
-        for col in mainDf.columns:
+        for col in sortAccordingToDateTime:
             if sortAccordingToDateTime[col] in [1,2,3]:
                 if value == 1:
                     mainDf = clusterDateTimeCol(mainDf,col,sortAccordingToDateTime[col],True) 
@@ -118,7 +120,13 @@ def uploadFileToClust():
             else:
                 continue
     else: #if there i no column of datetime or selected not to clust acc to dt
-        mainDf=pd.DataFrame(data = np.arange(0,100).reshape(20,5))
+        isTotalNumDf = all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes)
+        if isTotalNumDf:
+            for i in priorities.keys():
+                pass
+                # cluster_based_quantum_sort(mainDf,i,n_clusters)
+        else:
+            pass
     
     arrOfGroupNames = mainDf.index.get_level_values(0).unique()# this variable iS containing the group names
 # ------------------------------/////------------------
@@ -136,50 +144,87 @@ def uploadFileToClust():
     else:
         return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData= smallDf.to_html(classes="UploadedClusteredData", border=0), quote="Do you want Heirarchial clustering", noOfRows=noOfRows, noOfColumns=noOfColumns, columns=columns)        
 
-#================================================///////=============================================
+#================================================////=============================================
 import re
-def detect_datetime_columns(df):
+def detectColumns(df):
     result = {}
-
-    for col in df.columns:
-        col_data = df[col]
-
-        # Handle if column is numeric and looks like a year
-        if pd.api.types.is_integer_dtype(col_data) or pd.api.types.is_float_dtype(col_data):
-            if col_data.dropna().empty == False:
-            # Check if float values have only 2 decimal places
-                if pd.api.types.is_float_dtype(col_data):
-                    if col_data.dropna().apply(lambda x: round(x, 2) == x).all():
-                        if col_data.dropna().between(1800, 2100).all():
-                            result[col] = 1  # Only year
+    r = all(pd.api.types.is_numeric_dtype(dtype)  for dtype in df.dtypes)
+    if r ==  True:
+        result = {v:0 for v in df.columns}
+    else:
+        for col in df.columns:
+            col_data = df[col]
+            #detect if has roll no
+            if (pd.api.types.is_integer_dtype(col_data)) : # main thing for being roll no
+                        stringRoll = {}
+                        #trying to convert the int type into string type
+                        try:
+                            # they are array of type string
+                            stringRoll['strS'] =[str(i) for i in (col_data.head(10))]#first 10 nums
+                            stringRoll['strM'] = [str(i) for i in col_data.iloc[int(len(col_data)/2)-5: int(len(col_data)/2)+5]]#mid 10 nums in string
+                            stringRoll['strE'] =  [str(i) for i in col_data.iloc[len(col_data)-10:len(col_data)]]
+                            arr = np.array(list(stringRoll.values()))
+                            arr = (arr.flatten())
+                            lenOfEachEleInKeys= {}
+                            for i in stringRoll.keys():#this is iterating for keys 
+                                for j in stringRoll[i]:# this is iterating for 10 values in each keys 
+                                    if (len(j) == len(stringRoll[i][1])) and len(j) >= 5: #checking for each roll if they are of same length
+                                        lenOfEachEleInKeys[i] = len(j)
+                                        # print("almost")
+                                    else:
+                                        result [col] =0
+                                        continue 
+                                    
+                            if len(set(lenOfEachEleInKeys.values())) == 1:
+                                        isSame = all((x.startswith(arr[1][0])) for x in arr)
+                                        print(isSame)
+                                        if isSame:
+                                            result[col] = 4 # if it is a roll No
+                                            print("done")
+                                            continue
+                                        else:
+                                            print("already Sorted")
+                        except:
+                            print("except")
+                            result[col] = 0
                             continue
-                # For integer values
-                elif col_data.dropna().between(1800, 2100).all():
+                
+            # Handle if column is numeric and looks like a year
+            elif pd.api.types.is_integer_dtype(col_data) or pd.api.types.is_float_dtype(col_data):
+                if col_data.dropna().empty == False:
+                # Check if float values have only 2 decimal places
+                    if pd.api.types.is_float_dtype(col_data):
+                        if col_data.dropna().apply(lambda x: round(x, 2) == x).all():
+                            if col_data.dropna().between(1800, 2100).all():
+                                result[col] = 1  # Only year
+                                continue
+                    # For integer values
+                    elif col_data.dropna().between(1800, 2100).all():
+                        result[col] = 1  # Only year
+                        continue
+
+            # Convert to string for flexible matching
+            col_str = df[col].astype(str).str.strip()
+
+            # Handle year-like strings
+            if col_str.str.match(r'^\d{4}$').all():
+                print("date is str")
+                if col_str.astype(int).between(1800, 2100).all():
                     result[col] = 1  # Only year
                     continue
 
-        # Convert to string for flexible matching
-        col_str = df[col].astype(str).str.strip()
-
-        # Handle year-like strings
-        if col_str.str.match(r'^\d{4}$').all():
-            print("date is str")
-            if col_str.astype(int).between(1800, 2100).all():
-                result[col] = 1  # Only year
+            # Check if values have full date (yyyy-mm-dd, dd-mm-yyyy, etc.)
+            if col_str.str.match(r'^\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}$').all():
+                result[col] = 2  # Only date
                 continue
 
-        # Check if values have full date (yyyy-mm-dd, dd-mm-yyyy, etc.)
-        if col_str.str.match(r'^\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}$').all():
-            result[col] = 2  # Only date
-            continue
+            # Check if values have date AND time
+            if col_str.str.contains(r'\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}.*\d{1,2}:\d{2}').all():
+                result[col] = 3  # Date + Time
+                continue
 
-        # Check if values have date AND time
-        if col_str.str.contains(r'\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}.*\d{1,2}:\d{2}').all():
-            result[col] = 3  # Date + Time
-            continue
-
-        # Else not a recognized datetime pattern
-        result[col] = 0
+            # Else not a recognized datetime pattern
+            result[col] = 0
 
     return result
 # ===============================================///////==============================================
@@ -239,13 +284,13 @@ def clean_and_sort_date_column(dff, column_name, ascending=True):
         except Exception as e:
             print(f"⚠️ Error while processing date column: {e}")
             return dff
-# ===============================================///////==============================================
+# ===============================================///////====================================
 # if df has column containing the date and time both
 def handle_datetime_column(df, column_name, ascending):
     print(f"{column_name} dateTime")
     # Check if most values in column are datetime with time
     values = df[column_name].dropna().astype(str).head(20)
-    count_datetime = sum([is_datetime(v) for v in values])
+    count_datetime = sum([pd.api.is_datetime(v) for v in values])
 
     if count_datetime >= len(values) // 2:  # At least half must be datetime-like
         # Convert full column to datetime
@@ -259,7 +304,7 @@ def handle_datetime_column(df, column_name, ascending):
         print(f"[INFO] '{column_name}' does not contain proper datetime with time.")
 
     return df
-# ===============================================///////==============================================
+# ===============================================///==============================================
 #Group(MultiIndexing) accordind to the condition 
 def multiIndex(dataFrame, colToCheck, yearOnly = False, asc=True):
     # Step 1: Get last indices of each year

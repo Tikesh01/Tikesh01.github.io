@@ -1,4 +1,0 @@
-pandas>=2.0.0
-numpy>=1.20.0
-qiskit>=0.45.0
-qiskit-aer>=0.12.0
