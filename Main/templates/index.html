@@ -52,7 +52,6 @@
 
   <section class="dynamic-sections">
     <div id="tableOfUplodedData" class="data">{% include "partials/data_table.html" %}</div>
-    <div class="question" id="date">{% include "partials/date_question.html" %}</div>
     <div class="question" id="prio">{% include "partials/priority_form.html" %}</div>
     <div id="tableOfCLustData" class="data">{% include "partials/clustered_data.html" %}</div>
   </section>
@@ -105,10 +104,7 @@
         if (data.table) {
           document.getElementById("tableOfUplodedData").innerHTML = data.table; // Fix typo: tableOfUplodedData
         }
-        if (data.quote || data.note) {
-          if(data.note){
-            document.getElementById("date").innerHTML = data.note;
-          }
+        if (data.quote) {
           if(data.quote){
             document.getElementById("prio").innerHTML = data.quote;
           }
@@ -123,13 +119,9 @@
         else if (data.clustered) {
           document.getElementById("tableOfCLustData").scrollIntoView({ behavior: "auto" });
           alert("File Clustered successfully!");
-        } else if (data.note || data.quote) {
+        } else if (data.quote) {
           if(data.quote){
             document.getElementById("date").scrollIntoView({"behavior" : "auto"});
-          }
-          if(data.note)
-          {
-            document.getElementById("prio").scrollIntoView({"behavior" : "auto"});
           }
           alert("File Uploaded successfully!");
         } else if (data.table) {

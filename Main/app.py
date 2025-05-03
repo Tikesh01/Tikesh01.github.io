@@ -1,9 +1,8 @@
 from flask import Flask, render_template, request
-import os  #os handles the interaction with operating system 
+import os
 import pandas as pd
 import numpy as np
 from jinja2 import Environment
-from qiskit import QuantumCircuit
 
 app = Flask(__name__)
 env = Environment(autoescape=True)
@@ -13,20 +12,19 @@ app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
 def interface():
     return render_template('index.html')
 
-#Creation of a folder to store the files for clustering
-os.makedirs("userFiles", exist_ok=True)#Exist_ok will check for file is created or not and prevent to create multiple time
+os.makedirs("userFiles", exist_ok=True)
 @app.route('/uploader', methods = ["POST"])
 def getFile():
     print("AJAX detected:", request.headers.get("X-Requested-With"))
-    listOfExtension = ["csv","xsl","sql","sqlquery","xlsx","json","txt"] #list of possibel extantion
-    file = request.files["file"] #this is the method to store a file into a variable
+    listOfExtension = ["csv","xsl","sql","sqlquery","xlsx","json","txt"]
+    file = request.files["file"]
     filePath = os.path.join("userFiles", file.filename)
     app.config['path'] = filePath
-    nameOfFile = file.filename.split('.')#array of file name (n-1)th ele is extantion
+    nameOfFile = file.filename.split('.')
     uploadedFileExtension = nameOfFile[len(nameOfFile)-1]
     if uploadedFileExtension in listOfExtension:
         file.save(filePath)
-        return detectType(uploadedFileExtension,filePath,file.filename)#this fuction will detect the perticular type of file than detect the column contianing date,datetime or year 
+        return detectType(uploadedFileExtension,filePath,file.filename)
     else:
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             error_html = render_template("partials/type_error.html", error=f"only {listOfExtension} files are allowed")
@@ -34,32 +32,19 @@ def getFile():
         else:
             return render_template("index.html", error=f"only {listOfExtension} files are allowed")
 
-
 def detectType(type,filePath,fileName):
-     #if The uploaded file is CSV
     if type == "csv":
         df = pd.read_csv(filePath)
         os.remove(filePath)
-        app.config['df'] =  df.dropna(how="all")  # Remove empty rows
+        app.config['df'] =  df.dropna(how="all")
         columns = df.columns
-        isDateTimeCol = detectColumns(df)
-        arr = isDateTimeCol.values()
-        if (1 in  arr or 2 in arr or 3 in arr):#if has any datetime column it will render the form to ask cluster according to date time
-            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return {
-                        "table": render_template("partials/data_table.html", table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns), fileName=fileName),
-                        "note": render_template("partials/date_question.html", note="dateTime", noOfRows=len(df.index), noOfColumns=len(columns)),
-                        "quote": ""
-                    }
-        else:#otherWise ask for preferemce only
-            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-                return {
-                        "table": render_template("partials/data_table.html",table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns), fileName =fileName),
-                        "note": "",
-                        "quote": render_template("partials/priority_form.html", quote="NodateTimeOnlyPriority", columns=columns)
-                }
-            else:
-                return render_template("index.html",table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns))
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return {
+                "table": render_template("partials/data_table.html",table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns), fileName=fileName),
+                "quote": render_template("partials/priority_form.html", quote="Select priorities for clustering", columns=columns)
+            }
+        else:
+            return render_template("index.html",table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns))
             
     if type == "xls" or "xlsx":
         pass
@@ -69,165 +54,127 @@ def detectType(type,filePath,fileName):
         pass
     if type == "txt":
         pass
-#================================================/////===========================================
-#================================================/////===========================================
-@app.route("/askUserClustAccDateTime", methods=["POST"])
-def check():
-    value = int(request.form.get("useDateTime"))
-    df = app.config['df']
-    columns = df.columns
-    app.config['useDateTime'] = value
-    if value in [0,1,2]: #Return yes or no to cluster 
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return {#It will render the form to ask preference
-                "quote": render_template("partials/priority_form.html", quote="Do you want Heirarchial clustering", columns=columns),
-                "table": render_template("partials/data_table.html", table=(df.head(100)).to_html(classes="UploadedData", border=0), noOfColumns=len(columns), noOfRows=len(df.index)),
-                "note": ""
-            }
-        else:
-            return render_template("index.html",table=df.head(100).to_html(classes="UploadedData", border=0), noOfColumns=len(columns), noOfRows=len(df.index), quote="Do you want Heirarchial clustering", columns=columns)
 
-#================================================/////===========================================
-app.config['useDateTime'] = 0#if No date time column detected
-
-from pandas.api.types import is_datetime64_any_dtype
 @app.route('/start', methods=["POST"])
 def uploadFileToClust():
-    mainDf = app.config['df']#mianDf is the data frame containing the whole content of file
-    columns = np.array(mainDf.columns)#to know the number of colums in dataframe(csv) file
+    mainDf = app.config['df']
+    columns = np.array(mainDf.columns)
     noOfColumns = len(columns)
     noOfRows = len(mainDf.index)
     print(f"Total columns = {noOfColumns}")
     print(f"Total rows = {noOfRows}")
-    value = app.config['useDateTime']
-    priorities = {i: None for i in columns}
+
+    # Get priorities from form
+    priorities = {}
     for i in columns:
         priorities[i] = request.form.get(f'{i}')
     priorities = {key: value for key,value in priorities.items() if value}
     priorities = dict(sorted(priorities.items(),key=lambda item: item[1]))
     print(f"priorities = {priorities}")
-    sortAccordingTo = detectColumns(mainDf) 
-    print(sortAccordingTo)
-    if value != 0:#IF IT is being clustered according o date time 
-        sortAccordingToDateTime =  {k: v for k, v in sortAccordingTo.items() if v in [1,2,3]}
-        print(sortAccordingToDateTime)
-        for col in sortAccordingToDateTime:
-            if sortAccordingToDateTime[col] in [1,2,3]:
-                if value == 1:
-                    mainDf = clusterDateTimeCol(mainDf,col,sortAccordingToDateTime[col],True) 
-                if value == 2:
-                    mainDf = clusterDateTimeCol(mainDf,col,sortAccordingToDateTime[col],False) 
-            else:
-                continue
-    else: #if there i no column of datetime or selected not to clust acc to dt
-        isTotalNumDf = all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes)
-        if isTotalNumDf:
-            for i in priorities.keys():
-                pass
-                # cluster_based_quantum_sort(mainDf,i,n_clusters)
-        else:
-            pass
     
-    arrOfGroupNames = mainDf.index.get_level_values(0).unique()# this variable iS containing the group names
-# ------------------------------/////------------------
-    if len(arrOfGroupNames) !=0:
+    if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes):
+        # Process each priority column 
+        for col in priorities.keys():
+            pass
+            
+    else:
+        r = detectColumns(mainDf, priorities.keys())
+        print(r)
+
+    arrOfGroupNames = mainDf.index.get_level_values(0).unique() if isinstance(mainDf.index, pd.MultiIndex) else []
+
+    if len(arrOfGroupNames) != 0:
         smallDf = mainDf.groupby(level=0).head(20)
     else:
         smallDf = mainDf.head(50)
             
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return {
-                "table": render_template("partials/data_table.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), noOfColumns=noOfColumns, noOfRows=noOfRows),
-                "clustered": render_template("partials/clustered_data.html", clusteredData=smallDf.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows=noOfRows),
-                "quote": render_template("partials/priority_form.html", quote="Do you want Heirarchial clustering", columns=columns)
-            }     
+            "table": render_template("partials/data_table.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), noOfColumns=noOfColumns, noOfRows=noOfRows),
+            "clustered": render_template("partials/clustered_data.html", clusteredData=smallDf.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows=noOfRows)
+        }     
     else:
-        return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData= smallDf.to_html(classes="UploadedClusteredData", border=0), quote="Do you want Heirarchial clustering", noOfRows=noOfRows, noOfColumns=noOfColumns, columns=columns)        
+        return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData=smallDf.to_html(classes="UploadedClusteredData", border=0), noOfRows=noOfRows, noOfColumns=noOfColumns)
 
-#================================================////=============================================
 import re
-def detectColumns(df):
-    result = {}
-    r = all(pd.api.types.is_numeric_dtype(dtype)  for dtype in df.dtypes)
-    if r ==  True:
-        result = {v:0 for v in df.columns}
-    else:
-        for col in df.columns:
-            col_data = df[col]
-            #detect if has roll no
-            if (pd.api.types.is_integer_dtype(col_data)) : # main thing for being roll no
-                        stringRoll = {}
-                        #trying to convert the int type into string type
-                        try:
-                            # they are array of type string
-                            stringRoll['strS'] =[str(i) for i in (col_data.head(10))]#first 10 nums
-                            stringRoll['strM'] = [str(i) for i in col_data.iloc[int(len(col_data)/2)-5: int(len(col_data)/2)+5]]#mid 10 nums in string
-                            stringRoll['strE'] =  [str(i) for i in col_data.iloc[len(col_data)-10:len(col_data)]]
-                            arr = np.array(list(stringRoll.values()))
-                            arr = (arr.flatten())
-                            lenOfEachEleInKeys= {}
-                            for i in stringRoll.keys():#this is iterating for keys 
-                                for j in stringRoll[i]:# this is iterating for 10 values in each keys 
-                                    if (len(j) == len(stringRoll[i][1])) and len(j) >= 5: #checking for each roll if they are of same length
-                                        lenOfEachEleInKeys[i] = len(j)
-                                        # print("almost")
-                                    else:
-                                        result [col] =0
-                                        continue 
+def detectColumns(df, prioColumns):
+    result = {}    
+    for col in prioColumns:
+        col_data = df[col]
+        #detect if has roll no
+        if (pd.api.types.is_integer_dtype(col_data)) : # main thing for being roll no
+                stringRoll = {}
+                #trying to convert the int type into string type
+                try:
+                # they are array of type string
+                    stringRoll['strS'] =[str(i) for i in (col_data.head(10))]#first 10 nums
+                    stringRoll['strM'] = [str(i) for i in col_data.iloc[int(len(col_data)/2)-5: int(len(col_data)/2)+5]]#mid 10 nums in string
+                    stringRoll['strE'] =  [str(i) for i in col_data.iloc[len(col_data)-10:len(col_data)]]
+                    arr = np.array(list(stringRoll.values()))
+                    arr = (arr.flatten())
+                    lenOfEachEleInKeys= {}
+                    for i in stringRoll.keys():#this is iterating for keys 
+                        for j in stringRoll[i]:# this is iterating for 10 values in each keys 
+                                if (len(j) == len(stringRoll[i][1])) and len(j) >= 5: #checking for each roll if they are of same length
+                                    lenOfEachEleInKeys[i] = len(j)
+                                    # print("almost")
+                                else:
+                                    result [col] =0
+                                    continue 
                                     
-                            if len(set(lenOfEachEleInKeys.values())) == 1:
-                                        isSame = all((x.startswith(arr[1][0])) for x in arr)
-                                        print(isSame)
-                                        if isSame:
-                                            result[col] = 4 # if it is a roll No
-                                            print("done")
-                                            continue
-                                        else:
-                                            print("already Sorted")
-                        except:
-                            print("except")
-                            result[col] = 0
-                            continue
-                
-            # Handle if column is numeric and looks like a year
-            elif pd.api.types.is_integer_dtype(col_data) or pd.api.types.is_float_dtype(col_data):
-                if col_data.dropna().empty == False:
-                # Check if float values have only 2 decimal places
-                    if pd.api.types.is_float_dtype(col_data):
-                        if col_data.dropna().apply(lambda x: round(x, 2) == x).all():
-                            if col_data.dropna().between(1800, 2100).all():
-                                result[col] = 1  # Only year
+                        if len(set(lenOfEachEleInKeys.values())) == 1:
+                            isSame = all((x.startswith(arr[1][0])) for x in arr)
+                            print(isSame)
+                            if isSame:
+                                result[col] = 4 # if it is a roll No
+                                print("done")
                                 continue
-                    # For integer values
-                    elif col_data.dropna().between(1800, 2100).all():
-                        result[col] = 1  # Only year
-                        continue
-
-            # Convert to string for flexible matching
-            col_str = df[col].astype(str).str.strip()
-
-            # Handle year-like strings
-            if col_str.str.match(r'^\d{4}$').all():
-                print("date is str")
-                if col_str.astype(int).between(1800, 2100).all():
+                            else:
+                                print("already Sorted")
+                except:
+                    print("except")
+                    result[col] = 0
+                    continue
+    
+        # Handle if column is numeric and looks like a year
+        elif pd.api.types.is_integer_dtype(col_data) or pd.api.types.is_float_dtype(col_data):
+            if col_data.dropna().empty == False:
+            # Check if float values have only 2 decimal places
+                if pd.api.types.is_float_dtype(col_data):
+                    if col_data.dropna().apply(lambda x: round(x, 2) == x).all():
+                        if col_data.dropna().between(1800, 2100).all():
+                            result[col] = 1  # Only year
+                            continue
+                # For integer values
+                elif col_data.dropna().between(1800, 2100).all():
                     result[col] = 1  # Only year
                     continue
 
-            # Check if values have full date (yyyy-mm-dd, dd-mm-yyyy, etc.)
-            if col_str.str.match(r'^\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}$').all():
-                result[col] = 2  # Only date
+        # Convert to string for flexible matching
+        col_str = df[col].astype(str).str.strip()
+
+        # Handle year-like strings
+        if col_str.str.match(r'^\d{4}$').all():
+            print("date is str")
+            if col_str.astype(int).between(1800, 2100).all():
+                result[col] = 1  # Only year
                 continue
 
-            # Check if values have date AND time
-            if col_str.str.contains(r'\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}.*\d{1,2}:\d{2}').all():
-                result[col] = 3  # Date + Time
-                continue
+        # Check if values have full date (yyyy-mm-dd, dd-mm-yyyy, etc.)
+        if col_str.str.match(r'^\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}$').all():
+            result[col] = 2  # Only date
+            continue
 
-            # Else not a recognized datetime pattern
-            result[col] = 0
+        # Check if values have date AND time
+        if col_str.str.contains(r'\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}.*\d{1,2}:\d{2}').all():
+            result[col] = 3  # Date + Time
+            continue
+
+        # Else not a recognized datetime pattern
+        result[col] = 0
 
     return result
-# ===============================================///////==============================================
+
 def clusterDateTimeCol(fContent, col,no,ascending):
     if no ==1:
         # Try to detect and sort if the column is just year values
@@ -265,8 +212,6 @@ def clusterDateTimeCol(fContent, col,no,ascending):
    
     return fContent 
 
-# ===============================================///==========================================
-#fuction which will sort the dates if the df has date containing columns
 def clean_and_sort_date_column(dff, column_name, ascending=True):
         try:
             
@@ -284,8 +229,7 @@ def clean_and_sort_date_column(dff, column_name, ascending=True):
         except Exception as e:
             print(f"⚠️ Error while processing date column: {e}")
             return dff
-# ===============================================///////====================================
-# if df has column containing the date and time both
+
 def handle_datetime_column(df, column_name, ascending):
     print(f"{column_name} dateTime")
     # Check if most values in column are datetime with time
@@ -304,8 +248,7 @@ def handle_datetime_column(df, column_name, ascending):
         print(f"[INFO] '{column_name}' does not contain proper datetime with time.")
 
     return df
-# ===============================================///==============================================
-#Group(MultiIndexing) accordind to the condition 
+
 def multiIndex(dataFrame, colToCheck, yearOnly = False, asc=True):
     # Step 1: Get last indices of each year
     if yearOnly == True:
@@ -345,7 +288,6 @@ def multiIndex(dataFrame, colToCheck, yearOnly = False, asc=True):
     print("Multicalled")
     return dataFrame
 
-# ===============================================///////==============================================
 def get_last_indices_of_each_year(date_series, YearOnly=False, acs=True):
     
     # data_series = data_series.apply(pd.to_numeric, errors='coerce').astype('Int64')
@@ -366,11 +308,9 @@ def get_last_indices_of_each_year(date_series, YearOnly=False, acs=True):
     print("last index called")
     return last_indices
 
-# ===============================================///////==============================================
-
 def downLoadFile():
     pass
     
 if __name__ == "__main__":
     app.run(debug = True)
-    
+
