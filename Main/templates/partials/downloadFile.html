@@ -1,0 +1,12 @@
+{% if clusteredData %}
+    <h2 style="text-align: center; color: var(--primary);">Download Your Clustered File</h2>
+    <form action="/Download" method="post" enctype="multipart/form-data" id="downloadFile" style="width: 60%; margin: auto; padding-top: 3em ;">
+      <select name="fileTypes" id="dFileType"  style="padding: 1em 1.2em; border-radius: 20px; background-color: var(--primary); font-size: larger; ">
+        <option value="csv">CSV</option>
+        <option value="excel">XLSX</option>
+        <option value="json">JSON</option>
+      </select>
+      <button type="submit" style="padding: 1em; border-radius: 20px; background-color: var(--secondary); float: right; font-size: larger; color: white;" ><span style="margin: 0 0.5em;"><i class="fas fa-download"></i></span>Download</button>
+    </form>
+{% else %}
+{% endif %}

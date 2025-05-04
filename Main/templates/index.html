@@ -75,11 +75,10 @@
 
     <section class="dynamic-sections">
       <div id="tableOfUplodedData" class="data">{% include "partials/data_table.html" %}</div>
-      <div class="question" id="prio">{% include "partials/priority_form.html" %}</div>
+      <div class="question" id="prio">{% include "partials/priority_form.html" %}{% include "partials/downloadFile.html" %}</div>
       <div id="tableOfCLustData" class="data">{% include "partials/clustered_data.html" %}</div>
     </section>
   </div>
-
   <section class="features-section" id="f">
     <h1>Why Us ?</h1>
     <p class="features-subtitle"><i>Your data has answers — we help you find them.</i></p>
@@ -129,7 +128,6 @@
       </div>
     </div>
   </section>
-
   <footer class="footer">
     <div><img src="..\static\clusterLogo-removebg-preview.webp" alt="img.." width="70px"></div>
     <p>🚀 Powered by Quantum Intelligence | Fast & Smart Clustering</p>
@@ -254,6 +252,7 @@
           // Handle scroll behavior
           else if (data.quote) {
             document.getElementById("prio").scrollIntoView({ behavior: "smooth" });
+            document.getElementById("downloadFileSec")
             showNotification("File uploaded successfully", "success");
           } else if (data.table) {
             document.getElementById("tableOfUplodedData").scrollIntoView({ behavior: "smooth" });

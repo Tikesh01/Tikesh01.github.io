@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file, make_response
 import os
 import pandas as pd
 import numpy as np
 from jinja2 import Environment
+import io
 
 app = Flask(__name__)
 env = Environment(autoescape=True)
@@ -93,7 +94,9 @@ def uploadFileToClust():
                     mainDf = clusterDateTimeCol(mainDf,i,2)
                 if r[i] == 'dateAndTime':
                     mainDf = clusterDateTimeCol(mainDf, i, 3)
-
+                    
+    app.config['mainDf'] = mainDf
+    
     arrOfGroupNames = mainDf.index.get_level_values(0).unique() if isinstance(mainDf.index, pd.MultiIndex) else []
 
     if len(arrOfGroupNames) != 0:
@@ -320,9 +323,59 @@ def get_last_indices_of_each_year(date_series, YearOnly=False, acs=True):
     print("last index called")
     return last_indices
 
+@app.route('/Download', methods=["POST"])
 def downLoadFile():
-    pass
+    file = request.form.get('fileTypes')
+    df = app.config.get('mainDf')
     
+    if df is None:
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            return {"error": "No data available to download"}
+        return render_template("index.html", error="No data available to download")
+    
+    if file == 'csv':
+        # Create a string buffer
+        buffer = io.StringIO()
+        # Write the dataframe to the buffer
+        df.to_csv(buffer, index=False)
+        # Get the value of the buffer
+        buffer.seek(0)
+        
+        # Create the response
+        output = make_response(buffer.getvalue())
+        output.headers["Content-Disposition"] = "attachment; filename=exported_data.csv"
+        output.headers["Content-type"] = "text/csv"
+        return output
+    elif file == 'excel':
+        # Create a bytes buffer for Excel file
+        buffer = io.BytesIO()
+        # Write the dataframe to the buffer
+        df.to_excel(buffer, index=False)
+        buffer.seek(0)
+        
+        return send_file(
+            buffer,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name='exported_data.xlsx'
+        )
+    elif file == 'json':
+        # Create a string buffer
+        buffer = io.StringIO()
+        # Write the dataframe to JSON
+        df.to_json(buffer, orient='records')
+        buffer.seek(0)
+        
+        # Create the response
+        output = make_response(buffer.getvalue())
+        output.headers["Content-Disposition"] = "attachment; filename=exported_data.json"
+        output.headers["Content-type"] = "application/json"
+        return output
+        
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return {"error": "Invalid file type selected"}
+    return render_template("index.html", error="Invalid file type selected")
+
 if __name__ == "__main__":
     app.run(debug = True)
 
