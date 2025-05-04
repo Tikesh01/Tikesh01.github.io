@@ -38,39 +38,100 @@
     </div>
   </main>
 
-  <section class="upload-section">
-    <form action="/uploader" method="POST" enctype="multipart/form-data" id="uploader-form" class="upload-form">
-      <h2>Upload Your File</h2>
-      <label for="file-upload" class="custom-file-upload">
-        <i class="fas fa-upload"></i> Choose File
-      </label>
-      <input id="file-upload" type="file" name="file" required />
-      <button type="submit" class="upload-btn">Upload</button>
-      <p id="typeError">{% include "partials/type_error.html" %}</p>
-    </form>
-  </section>
+  <div class="main-content-wrapper">
+    <section class="upload-section">
+      <div class="upload-container">
+        <div class="upload-icon">
+          <i class="fas fa-cloud-upload-alt"></i>
+        </div>
+        <h2 class="upload-title">Upload Your Data File</h2>
+        <p class="upload-description">
+          Drag and drop your file here or click to browse. Supported formats: CSV, XSL, SQL, XLSX, JSON, TXT
+        </p>
+        <form action="/uploader" method="POST" enctype="multipart/form-data" id="uploader-form" class="upload-form">
+          <div class="file-upload-area" id="drop-zone">
+            <label for="file-upload" class="custom-file-upload">
+              <i class="fas fa-file-upload"></i>
+              <span>Choose File</span>
+            </label>
+            <input id="file-upload" type="file" name="file" required accept=".csv,.xsl,.sql,.sqlquery,.xlsx,.json,.txt"/>
+          </div>
+          <div class="file-info" id="file-info" style="display: none;">
+            <div class="file-details">
+              <span class="file-name" id="selected-file-name">No file selected</span>
+              <span class="file-size" id="selected-file-size"></span>
+            </div>
+            <button type="submit" class="upload-btn">
+              <i class="fas fa-upload"></i> Upload
+            </button>
+          </div>
+          <div class="upload-progress" style="display: none;">
+            <div class="progress-bar"></div>
+          </div>
+          <p id="typeError" class="error-message">{% include "partials/type_error.html" %}</p>
+        </form>
+      </div>
+    </section>
 
-  <section class="dynamic-sections">
-    <div id="tableOfUplodedData" class="data">{% include "partials/data_table.html" %}</div>
-    <div class="question" id="prio">{% include "partials/priority_form.html" %}</div>
-    <div id="tableOfCLustData" class="data">{% include "partials/clustered_data.html" %}</div>
-  </section>
+    <section class="dynamic-sections">
+      <div id="tableOfUplodedData" class="data">{% include "partials/data_table.html" %}</div>
+      <div class="question" id="prio">{% include "partials/priority_form.html" %}</div>
+      <div id="tableOfCLustData" class="data">{% include "partials/clustered_data.html" %}</div>
+    </section>
+  </div>
 
   <section class="features-section" id="f">
-    <h2>Why Choose Our Quantum Clustering?</h2>
-    <i>Your data has answers — we help you find them.</i>
+    <h1>Why Us ?</h1>
+    <p class="features-subtitle"><i>Your data has answers — we help you find them.</i></p>
 
     <div class="features-grid">
-      <div class="feature-item">🧠 Smart Clustering</div>
-      <div class="feature-item">📁 Easy CSV Upload</div>
-      <div class="feature-item">📊 Visual Results</div>
-      <div class="feature-item">🎯 Targeted Insights</div>
-      <div class="feature-item">⚡ Fast Processing</div>
-      <div class="feature-item">🕹️ Simple UI</div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <i class="fas fa-brain"></i>
+        </div>
+        <h3>Smart Clustering</h3>
+        <p>Advanced algorithms for intelligent data organization</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <i class="fas fa-file-upload"></i>
+        </div>
+        <h3>Easy Upload</h3>
+        <p>Simple drag & drop interface for multiple file formats</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <i class="fas fa-chart-bar"></i>
+        </div>
+        <h3>Visual Results</h3>
+        <p>Clear and intuitive data visualization</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <i class="fas fa-bullseye"></i>
+        </div>
+        <h3>Targeted Insights</h3>
+        <p>Precise and actionable data analysis</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <i class="fas fa-bolt"></i>
+        </div>
+        <h3>Fast Processing</h3>
+        <p>Quick and efficient data handling</p>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">
+          <i class="fas fa-magic"></i>
+        </div>
+        <h3>Simple UI</h3>
+        <p>User-friendly interface for seamless experience</p>
+      </div>
     </div>
   </section>
 
   <footer class="footer">
+    <div><img src="..\static\clusterLogo-removebg-preview.webp" alt="img.." width="70px"></div>
     <p>🚀 Powered by Quantum Intelligence | Fast & Smart Clustering</p>
     <div class="footer-links">
       <a href="#">Privacy Policy</a>
@@ -80,59 +141,158 @@
     <p>© 2025 Quantum Clustering. All rights reserved.</p>
   </footer>
   <script>
-    document.getElementById("uploader-form").addEventListener("submit", async function (e) {
+    const dropZone = document.getElementById('drop-zone');
+    const fileUpload = document.getElementById('file-upload');
+    const fileInfo = document.getElementById('file-info');
+    const fileName = document.getElementById('selected-file-name');
+    const fileSize = document.getElementById('selected-file-size');
+    const uploadProgress = document.querySelector('.upload-progress');
+    const progressBar = document.querySelector('.progress-bar');
+    const uploadForm = document.getElementById('uploader-form');
+
+    // Prevent default drag behaviors
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, preventDefaults, false);
+      document.body.addEventListener(eventName, preventDefaults, false);
+    });
+
+    // Highlight drop zone when file is dragged over it
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropZone.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, unhighlight, false);
+    });
+
+    // Handle dropped files
+    dropZone.addEventListener('drop', handleDrop, false);
+
+    function preventDefaults (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+
+    function highlight(e) {
+      dropZone.classList.add('highlight');
+    }
+
+    function unhighlight(e) {
+      dropZone.classList.remove('highlight');
+    }
+
+    function handleDrop(e) {
+      const dt = e.dataTransfer;
+      const file = dt.files[0];
+      handleFile(file);
+    }
+
+    // Handle file selection via input
+    fileUpload.addEventListener('change', function(e) {
+      handleFile(e.target.files[0]);
+    });
+
+    function handleFile(file) {
+      // Show file info
+      fileInfo.style.display = 'flex';
+      fileName.textContent = file.name;
+      fileSize.textContent = formatFileSize(file.size);
+      
+      // Add selected file class to drop zone
+      dropZone.classList.add('has-file');
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
+
+    // Form submission with progress
+    uploadForm.addEventListener("submit", async function (e) {
       e.preventDefault();
       const formData = new FormData(e.target);
-    
-      const res = await fetch("/uploader", {
-        method: "POST",
-        body: formData,
-        headers: { "X-Requested-With": "XMLHttpRequest" }
-      });
-    
-      const data = await res.json();
-    
-      if (data.error) {
-        document.getElementById("typeError").innerHTML = data.error;
+      
+      // Show progress bar
+      uploadProgress.style.display = 'block';
+      progressBar.style.width = '0%';
+      
+      try {
+        const res = await fetch("/uploader", {
+          method: "POST",
+          body: formData,
+          headers: { "X-Requested-With": "XMLHttpRequest" }
+        });
         
-        const questions = document.getElementsByClassName("question");
-        for (let i = 0; i < questions.length; i++) {
-          questions[i].innerHTML = "";
-        }
-        alert("Please upload a supported file");
-      } else {
-        if (data.table) {
-          alert("File uploaded succesfully");
-          document.getElementById("tableOfUplodedData").innerHTML = data.table; // Fix typo: 
-          // tableOfUplodedData
-        }
-        if (data.quote) {
-          if(data.quote){
+        // Simulate upload progress
+        progressBar.style.width = '100%';
+        
+        const data = await res.json();
+        
+        if (data.error) {
+          document.getElementById("typeError").innerHTML = data.error;
+          const questions = document.getElementsByClassName("question");
+          for (let i = 0; i < questions.length; i++) {
+            questions[i].innerHTML = "";
+          }
+          showNotification("Please upload a supported file", "error");
+        } else {
+          if (data.table) {
+            document.getElementById("tableOfUplodedData").innerHTML = data.table;
+            showNotification("File uploaded successfully", "success");
+          }
+          if (data.quote) {
             document.getElementById("prio").innerHTML = data.quote;
           }
-        }
-        if (data.clustered) {
-          document.getElementById("tableOfCLustData").innerHTML = data.clustered; // Fix typo: tableOfCLustData
-          document.getElementById("tableOfCLustData").scrollIntoView({ behavior: "auto" });
-          alert("File Clustered successfully!");
-        }
-    
-        // Scroll behavior — fix
-        else if (data.clustered) {
-          document.getElementById("tableOfCLustData").scrollIntoView({ behavior: "auto" });
-          alert("File Clustered successfully!");
-        } else if (data.quote) {
-          if(data.quote){
-            document.getElementById("date").scrollIntoView({"behavior" : "auto"});
+          if (data.clustered) {
+            document.getElementById("tableOfCLustData").innerHTML = data.clustered;
+            document.getElementById("tableOfCLustData").scrollIntoView({ behavior: "smooth" });
+            showNotification("File clustered successfully", "success");
           }
-          alert("File Uploaded successfully!");
-        } else if (data.table) {
-          document.getElementById("tableOfUplodedData").scrollIntoView({ "behavior" : "auto" });
-          alert("File Uploaded successfully!");
+          // Handle scroll behavior
+          else if (data.quote) {
+            document.getElementById("prio").scrollIntoView({ behavior: "smooth" });
+            showNotification("File uploaded successfully", "success");
+          } else if (data.table) {
+            document.getElementById("tableOfUplodedData").scrollIntoView({ behavior: "smooth" });
+            showNotification("File uploaded successfully", "success");
+          }
         }
+      } catch (error) {
+        showNotification("An error occurred while uploading", "error");
+      } finally {
+        // Hide progress after a delay
+        setTimeout(() => {
+          uploadProgress.style.display = 'none';
+          progressBar.style.width = '0%';
+        }, 1000);
       }
     });
-    </script>
-    
+
+    // Toast notification function
+    function showNotification(message, type = 'info') {
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast
+      .innerHTML = `
+        <div class="toast-content">
+          <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+          <span>${message}</span>
+        </div>
+      `;
+      document.body.appendChild(toast);
+
+      // Animate in
+      setTimeout(() => toast.classList.add('show'), 100);
+
+      // Remove after 3 seconds
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+  </script>
 </body>
 </html>
