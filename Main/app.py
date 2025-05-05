@@ -69,11 +69,12 @@ def uploadFileToClust():
     priorities = {}
     for i in columns:
         priorities[i] = request.form.get(f'{i}')
-    decending = request.form.get('dec')
-    if decending == 1:
-        decending == False
+    order = request.form.get('dec')
+    if order == 'decO':
+        order == False
     priorities = {key: value for key,value in priorities.items() if value}
     priorities = dict(sorted(priorities.items(),key=lambda item: item[1]))
+    print(f'order : {order}')
     print(f"priorities = {priorities}")
     
     if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes):
@@ -99,13 +100,9 @@ def uploadFileToClust():
                     mainDf = clusterDateTimeCol(mainDf, i, 3)
                 elif colTypes[i] == 'id':
                     pass
-                if a== 0:
-                    mainDf = multiIndex(mainDf,i, yearOnly=yearOnly, asc= decending )
+                if a== 0:#Multiindex only for first time
+                    mainDf = multiIndex(mainDf,i, yearOnly=yearOnly, asc=order)
                 a+=1
-                
-            
-                
-            
                     
     app.config['mainDf'] = mainDf
     
@@ -286,7 +283,10 @@ def multiIndex(dataFrame, colToCheck, yearOnly = False, asc=True):
     if yearOnly == True:
         yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], True, asc)
     else:
-        yearsWithLastIndex = get_last_indices_of_each_year(pd.to_datetime(dataFrame[colToCheck]),False, asc)
+        try:    
+            yearsWithLastIndex = get_last_indices_of_each_year(pd.to_datetime(dataFrame[colToCheck]),False, asc)
+        except:
+            yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], False, asc)
     if asc==False:
         yearsWithLastIndex = dict(reversed(list(yearsWithLastIndex.items())))
         
@@ -303,7 +303,7 @@ def multiIndex(dataFrame, colToCheck, yearOnly = False, asc=True):
     print(group_sizes)
     # Step 3: Create array per group
     objOfGroups = {
-        f'key{i}': np.array([f'Group of  {year}'] * group_sizes[i]) for i, year in enumerate(nameOfGroups)
+        f'key{i}': np.array([f'Group of {year}'] * group_sizes[i]) for i, year in enumerate(nameOfGroups)
     }
     
     # Step 4: Combine into one array
@@ -328,10 +328,13 @@ def get_last_indices_of_each_year(date_series, YearOnly=False, acs=True):
     
     if YearOnly == False:
         # Extract year
-        years = date_series.dt.year
-        
-        # Create a DataFrame with index
-        df = pd.DataFrame({'year': years}, index=np.arange(len(date_series)))
+        try:
+            years = date_series.dt.year
+            # Create a DataFrame with index
+            df = pd.DataFrame({'year': years}, index=np.arange(len(date_series)))
+        except:
+             #Create a DataFrame with index
+            df = pd.DataFrame({'year': date_series}, index=np.arange(len(date_series)))
         
     # Get last index of each year group
     last_indices = df.groupby('year').apply(lambda x: x.index[-1]).to_dict()
