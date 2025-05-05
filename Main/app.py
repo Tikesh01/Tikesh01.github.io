@@ -82,18 +82,30 @@ def uploadFileToClust():
             pass
             
     else:
-        r = detectColumns(mainDf, priorities.keys())
-        print(r)
-        for i in r.keys():
-            if r[i] !=0:
-                if r[i] == 'rollNo':
+        colTypes = detectColumns(mainDf, priorities.keys())
+        print(colTypes)
+        a = 0
+        yearOnly = False
+        for i in priorities.keys():
+            if colTypes[i] != None:
+                if colTypes[i] == 'rollNo':
                     pass
-                if r[i] == 'yearOnly':
+                elif colTypes[i] == 'yearOnly':
+                    yearOnly = True
                     mainDf = clusterDateTimeCol(mainDf, i,1)
-                if r[i] == 'dateOnly':
+                elif colTypes[i] == 'dateOnly':
                     mainDf = clusterDateTimeCol(mainDf,i,2)
-                if r[i] == 'dateAndTime':
+                elif colTypes[i] == 'dateAndTime':
                     mainDf = clusterDateTimeCol(mainDf, i, 3)
+                elif colTypes[i] == 'id':
+                    pass
+                if a== 0:
+                    mainDf = multiIndex(mainDf,i, yearOnly=yearOnly, asc= decending )
+                a+=1
+                
+            
+                
+            
                     
     app.config['mainDf'] = mainDf
     
@@ -107,7 +119,7 @@ def uploadFileToClust():
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return {
             "table": render_template("partials/data_table.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), noOfColumns=noOfColumns, noOfRows=noOfRows),
-            "clustered": render_template("partials/clustered_data.html", clusteredData=smallDf.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows=noOfRows)
+            "clustered": render_template("partials/clustered_data.html", clusteredData=smallDf.to_html(classes="UploadedClusteredData", border=0), noOfColumns=len(mainDf.columns), noOfRows=(mainDf.index))
         }     
     else:
         return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData=smallDf.to_html(classes="UploadedClusteredData", border=0), noOfRows=noOfRows, noOfColumns=noOfColumns)
@@ -117,7 +129,7 @@ def detectColumns(df, prioColumns):
     result = {}    
     for col in prioColumns:
         # Initialize result as 0 (unrecognized type)
-        result[col] = 0
+        result[col] = None
         
         col_data = df[col]
         col_str = df[col].astype(str).str.strip()
@@ -141,6 +153,10 @@ def detectColumns(df, prioColumns):
         # 4. Check for DateTime values (type 3)
         if check_datetime_format(col_str):
             result[col] = 'dateAndTime'
+            continue
+        
+        if detectIdTypeCol(col_data):
+            result[col] = 'id'
             continue
     
     return result
@@ -190,12 +206,16 @@ def check_datetime_format(col_str):
     datetime_pattern = r'\d{1,4}[-/\.]\d{1,2}[-/\.]\d{1,4}.*\d{1,2}:\d{2}'
     return col_str.str.contains(datetime_pattern).all()
 
+def detectIdTypeCol(col_data):
+    if pd.api.types.is_string_dtype(col_data):
+        pattern = r'\b[A-Z0-9]{1,4}[-_./]?[A-Z0-9]{2,6}[-_./]?[A-Z0-9]{0,5}\b'
+        return all(re.fullmatch(pattern, item) for item in col_data)
+
 def clusterDateTimeCol(fContent, col,no,ascending=True):
     if no ==1:
         # Try to detect and sort if the column is just year values
         fContent = fContent.sort_values(by=col,ignore_index=True, ascending=ascending)
         fContent = fContent.reset_index(drop=True)
-        fContent = multiIndex(fContent,col, True, asc=ascending)
     elif no == 2 or 3:
         # Now, try to detect proper date/datetime columns
         try:
@@ -214,17 +234,14 @@ def clusterDateTimeCol(fContent, col,no,ascending=True):
                 fContent[col] = parsed_col
                 fContent = clean_and_sort_date_column(fContent, col, ascending)
                 fContent = fContent.reset_index(drop=True)
-                fContent = multiIndex(fContent,col,yearOnly=False,asc=ascending)
                 # Replace original column with parsed datetime values
             elif no == 3:  # Date + time
                 fContent[col] = parsed_col
                 fContent = handle_datetime_column(fContent, col, ascending)
                 fContent = fContent.reset_index(drop=True)
-                fContent = multiIndex(fContent,col,yearOnly=False,asc=ascending)
         except Exception as e:
             return fContent # Not a datetime column
         
-   
     return fContent 
 
 def clean_and_sort_date_column(dff, column_name, ascending=True):
@@ -286,8 +303,7 @@ def multiIndex(dataFrame, colToCheck, yearOnly = False, asc=True):
     print(group_sizes)
     # Step 3: Create array per group
     objOfGroups = {
-        f'key{i}': np.array([f'Group of year {year}'] * group_sizes[i])
-        for i, year in enumerate(nameOfGroups)
+        f'key{i}': np.array([f'Group of  {year}'] * group_sizes[i]) for i, year in enumerate(nameOfGroups)
     }
     
     # Step 4: Combine into one array

@@ -150,7 +150,7 @@ body, html {
 }
 
 /* File Upload Section */
-.upload-section, .question, #downloadFilesec{
+.upload-section, .middle, #downloadFilesec{
   background: var(--light);
   padding: 3rem;
   margin: 4rem auto;
