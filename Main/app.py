@@ -77,14 +77,14 @@ def uploadFileToClust():
     
     #No of clusters from from
     noOfClusters = request.form.get('nCluster')
+        
     print(f"priorities = {priorities}")
     print(f'order : {order}')
     print(noOfClusters)
     
     if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes):
         # Process each priority column 
-        for col in priorities.keys():
-            pass
+        mainDf = cluster_based_quantum_sort(mainDf, priorities.keys(), noOfClusters if noOfClusters else None )
             
     else:
         colTypes = detectColumns(mainDf, priorities.keys())
@@ -384,6 +384,175 @@ def get_last_indices_of_each_year(date_series, YearOnly=False, acs=True):
     print("last index called")
     return last_indices
 
+from sklearn.cluster import KMeans
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+from qiskit_aer import Aer
+import time
+
+# Cache for storing quantum circuits to avoid recreating them
+circuit_cache = {}
+
+def create_oracle(values, target_idx, num_qubits):
+    st = time.time()
+    cache_key = f'oracle_{target_idx}_{num_qubits}'
+    if cache_key in circuit_cache:
+        return circuit_cache[cache_key]
+
+    oracle = QuantumCircuit(num_qubits)
+    for i in range(num_qubits):
+        if (target_idx >> i) & 1:
+            oracle.x(i)
+    
+    if num_qubits == 1:
+        oracle.h(0)
+        oracle.z(0)
+        oracle.h(0)
+    elif num_qubits > 3:
+        mid = num_qubits // 2
+        oracle.h(num_qubits - 1)
+        oracle.mcx(list(range(mid)), mid)
+        oracle.mcx(list(range(mid, num_qubits - 1)), num_qubits - 1)
+        oracle.h(num_qubits - 1)
+    else:
+        oracle.h(num_qubits - 1)
+        if num_qubits == 2:
+            oracle.cx(0, 1)
+        else:
+            oracle.mcx(list(range(num_qubits - 1)), num_qubits - 1)
+    
+    for i in range(num_qubits):
+        if (target_idx >> i) & 1:
+            oracle.x(i)
+    circuit_cache[cache_key] = oracle
+    et = time.time()
+    print(f"create_oracle time = {et-st}")
+    return oracle
+
+def create_diffusion(num_qubits):
+    st = time.time()
+    cache_key = f'diffusion_{num_qubits}'
+    if cache_key in circuit_cache:
+        return circuit_cache[cache_key]
+
+    diffusion = QuantumCircuit(num_qubits + 1)
+    for qubit in range(num_qubits):
+        diffusion.h(qubit)
+    for qubit in range(num_qubits):
+        diffusion.x(qubit)
+    chunk_size = 3
+    for i in range(0, num_qubits - 1, chunk_size):
+        control_qubits = list(range(i, min(i + chunk_size, num_qubits - 1)))
+        if len(control_qubits) > 0:
+            diffusion.h(num_qubits)
+            diffusion.mcx(control_qubits, num_qubits)
+            diffusion.h(num_qubits)
+    for qubit in range(num_qubits):
+        diffusion.x(qubit)
+    for qubit in range(num_qubits):
+        diffusion.h(qubit)
+    circuit_cache[cache_key] = diffusion
+    et = time.time()
+    print(f"create_diffusion = {et-st}")
+    return diffusion
+
+def grover_find_min_index(values):
+    st = time.time()
+    n = len(values)
+    num_bits = max(1, int(np.ceil(np.log2(n))))
+    min_idx = np.argmin(values)
+    
+    qr = QuantumRegister(num_bits + 1, 'q')
+    cr = ClassicalRegister(num_bits, 'c')
+    circuit = QuantumCircuit(qr, cr)
+    
+    for i in range(num_bits):
+        circuit.h(qr[i])
+    
+    iterations = int(np.pi/4 * np.sqrt(2**num_bits))
+    oracle = create_oracle(values, min_idx, num_bits + 1)
+    diffusion = create_diffusion(num_bits)
+    
+    for _ in range(iterations):
+        circuit = circuit.compose(oracle)
+        circuit = circuit.compose(diffusion)
+    
+    for i in range(num_bits):
+        circuit.measure(qr[i], cr[i])
+    
+    backend = Aer.get_backend('aer_simulator')
+    result = backend.run(circuit, shots=1000).result()
+    counts = result.get_counts()
+    max_count_result = max(counts.items(), key=lambda x: x[1])[0]
+    et = time.time()
+    print(f" grover find min index time = {et -st}")
+
+    return int(max_count_result, 2) % n
+
+def quantum_sort_cluster(cluster_df, sort_column):
+    st=time.time()
+    if len(cluster_df) == 0:
+        return cluster_df
+    
+    df = cluster_df.copy()
+    sorted_indices = []
+    values = df[sort_column].tolist()
+    remaining_indices = list(range(len(values)))
+    
+    while remaining_indices:
+        remaining_values = [values[i] for i in remaining_indices]
+        min_idx = grover_find_min_index(remaining_values)
+        actual_idx = remaining_indices[min_idx]
+        sorted_indices.append(actual_idx)
+        remaining_indices.remove(actual_idx)
+    
+    et=time.time()
+    print(f"quantum_sort_cluster time = {et -st}")
+    return df.iloc[sorted_indices].reset_index(drop=True)
+
+def cluster_based_quantum_sort(df, Pcols, n_clusters=None, i=0, j=0):
+    if i >= len(Pcols):
+        return df
+
+    sort_column = Pcols[i]
+    if sort_column not in df.columns:
+        print(f"Column '{sort_column}' not found.")
+        return df
+
+    print(f'\nLevel {i}: Sorting by column "{sort_column}"')
+    start_time = time.time()
+
+    # Perform clustering on the current sort_column
+    clustering_data = df[[sort_column]]
+    if n_clusters is None:
+        n_clusters = int(np.ceil(len(df[sort_column]) / 60))
+    kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+    df['cluster'] = kmeans.fit_predict(clustering_data)
+
+    unique_clusters = sorted(df['cluster'].unique())
+    all_sorted = []
+
+    for cluster_id in unique_clusters:
+        cluster_df = df[df['cluster'] == cluster_id].drop(columns=['cluster'])
+        print(f"  → Cluster {cluster_id} (size {len(cluster_df)})")
+
+        # Sort this cluster
+        sorted_cluster = quantum_sort_cluster(cluster_df, sort_column)
+
+        # Recursively sort the next column (if available)
+        next_sorted_cluster = cluster_based_quantum_sort(pd.DataFrame(sorted_cluster), Pcols, i=i+1, j=j+1)
+        all_sorted.append(next_sorted_cluster)
+
+        print(f"  ✓ Completed Cluster {cluster_id}")
+
+    # Merge and sort by current column
+    merged_df = pd.concat(all_sorted, ignore_index=True)
+    final_sorted_df = merged_df.sort_values(by=sort_column).reset_index(drop=True)
+
+    end_time = time.time()
+    # print(f"✔ Level {i} sorting by '{sort_column}' completed in {end_time - start_time:.2f} seconds")
+
+    return final_sorted_df
+    
 @app.route('/Download', methods=["POST"])
 def downLoadFile():
     file = request.form.get('fileTypes')
