@@ -39,14 +39,10 @@ def detectType(type,filePath,fileName):
         os.remove(filePath)
         app.config['df'] =  df.dropna(how="all")
         columns = df.columns
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return {
-                "table": render_template("partials/data_table.html",table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns), fileName=fileName),
-                "quote": render_template("partials/priority_form.html", quote="Select priorities for clustering", columns=columns)
-            }
+        if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in df.dtypes):
+            fReturn(table=df.head(50),quote='yes',noOfCluster='yes', columns=columns)
         else:
-            return render_template("index.html",table=df.head(50).to_html(classes="UploadedData", border=0), noOfRows=len(df.index), noOfColumns=len(columns))
-            
+            fReturn(table=df.head(50),quote='yes', columns=columns)
     if type == "xls" or "xlsx":
         pass
     if type == "sql":
@@ -89,37 +85,47 @@ def uploadFileToClust():
         yearOnly = False
         for i in priorities.keys():
             if colTypes[i] != None:
-                if colTypes[i] == 'rollNo':
-                    pass
-                elif colTypes[i] == 'yearOnly':
+                if colTypes[i] == 'yearOnly':
                     yearOnly = True
                     mainDf = clusterDateTimeCol(mainDf, i,1)
                 elif colTypes[i] == 'dateOnly':
                     mainDf = clusterDateTimeCol(mainDf,i,2)
                 elif colTypes[i] == 'dateAndTime':
                     mainDf = clusterDateTimeCol(mainDf, i, 3)
+                elif colTypes[i] == 'rollNo':
+                    pass
                 elif colTypes[i] == 'id':
                     pass
+                elif colTypes[i] == 'oneOr2Digit':
+                    pass
+                elif colTypes[i] == 'numeric' or colTypes[i] == 'allInt':
+                    pass
+                elif colTypes[i] == 'str':
+                    pass
                 if a== 0:#Multiindex only for first time
-                    mainDf = multiIndex(mainDf,i, yearOnly=yearOnly, asc=order)
+                    mainDf = multiIndex(mainDf,i,colTypes[i], yearOnly=yearOnly, asc=True if order==None else False)
                 a+=1
-                    
     app.config['mainDf'] = mainDf
-    
     arrOfGroupNames = mainDf.index.get_level_values(0).unique() if isinstance(mainDf.index, pd.MultiIndex) else []
 
     if len(arrOfGroupNames) != 0:
-        smallDf = mainDf.groupby(level=0).head(20)
+        smallDf = mainDf.groupby(level=0).head(10)
     else:
         smallDf = mainDf.head(50)
             
+    fReturn(app.config['df'].head(50),clustTable=smallDf, noOfColumns=noOfColumns,noOfRows=noOfRows)
+    
+    
+def fReturn(table,clustTable=None, noOfCluster=None, quote=None, columns=None, noOfColumns=None,noOfRows =None):
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
         return {
-            "table": render_template("partials/data_table.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), noOfColumns=noOfColumns, noOfRows=noOfRows),
-            "clustered": render_template("partials/clustered_data.html", clusteredData=smallDf.to_html(classes="UploadedClusteredData", border=0), noOfColumns=len(mainDf.columns), noOfRows=(mainDf.index))
+            "table": render_template("partials/data_table.html", table=table.to_html(classes="UploadedData", border=0),noOfCluster=noOfCluster),
+            "clustered" : render_template("partials/clustered_data.html", clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows= noOfRows)if clustTable !=None else '',
+            "quote": render_template("partials/priority_form.html", quote=quote, columns=columns)
         }     
     else:
-        return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData=smallDf.to_html(classes="UploadedClusteredData", border=0), noOfRows=noOfRows, noOfColumns=noOfColumns)
+        return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfRows=noOfRows, noOfColumns=noOfColumns)
+
 
 import re
 def detectColumns(df, prioColumns):
@@ -155,7 +161,12 @@ def detectColumns(df, prioColumns):
         if detectIdTypeCol(col_data):
             result[col] = 'id'
             continue
-    
+        if OneOr2digitDetection(col_data):
+            result[col] = 'oneOr2Digit'
+            continue
+        else:
+            result[col] = detectSimpleDtypes(col_data)
+            
     return result
 
 def check_roll_number(col_data):
@@ -207,6 +218,24 @@ def detectIdTypeCol(col_data):
     if pd.api.types.is_string_dtype(col_data):
         pattern = r'\b[A-Z0-9]{1,4}[-_./]?[A-Z0-9]{2,6}[-_./]?[A-Z0-9]{0,5}\b'
         return all(re.fullmatch(pattern, item) for item in col_data)
+    
+def OneOr2digitDetection(col_data):
+    try:
+        if all(len(str(i))<=2 for i in col_data):
+            return True
+    except:
+        pass
+    return False
+
+def detectSimpleDtypes(col_data):
+    if pd.api.types.is_integer_dtype(col_data):
+        return 'allInt'
+    if pd.api.types.is_float_dtype(col_data):
+        if col_data.isna().all()== False:
+            return 'numaric'
+    if pd.api.types.is_string_dtype(col_data) or pd.api.types.is_object_dtype(col_data):
+        return 'str'
+    return None
 
 def clusterDateTimeCol(fContent, col,no,ascending=True):
     if no ==1:
@@ -278,14 +307,14 @@ def handle_datetime_column(df, column_name, ascending):
 
     return df
 
-def multiIndex(dataFrame, colToCheck, yearOnly = False, asc=True):
+def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     # Step 1: Get last indices of each year
     if yearOnly == True:
         yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], True, asc)
-    else:
-        try:    
+    else: 
+        if colType=="dateOnly" or colType == 'dateAndTime':
             yearsWithLastIndex = get_last_indices_of_each_year(pd.to_datetime(dataFrame[colToCheck]),False, asc)
-        except:
+        else:
             yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], False, asc)
     if asc==False:
         yearsWithLastIndex = dict(reversed(list(yearsWithLastIndex.items())))
