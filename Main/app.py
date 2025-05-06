@@ -27,6 +27,7 @@ def getFile():
         file.save(filePath)
         return detectType(uploadedFileExtension,filePath,file.filename)
     else:
+        print("error")
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             error_html = render_template("partials/type_error.html", error=f"only {listOfExtension} files are allowed")
             return {"error": error_html}
@@ -40,9 +41,11 @@ def detectType(type,filePath,fileName):
         app.config['df'] =  df.dropna(how="all")
         columns = df.columns
         if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in df.dtypes):
-            fReturn(table=df.head(50),quote='yes',noOfCluster='yes', columns=columns)
+            print('AllNumaric')
+            return fReturn(table=df.head(50),quote='yes',noOfCluster='yes', columns=columns)
         else:
-            fReturn(table=df.head(50),quote='yes', columns=columns)
+            print('simple')
+            return fReturn(table=df.head(50),quote='yes', columns=columns)
     if type == "xls" or "xlsx":
         pass
     if type == "sql":
@@ -65,13 +68,18 @@ def uploadFileToClust():
     priorities = {}
     for i in columns:
         priorities[i] = request.form.get(f'{i}')
+    priorities = {key: value for key,value in priorities.items() if value}
+    priorities = dict(sorted(priorities.items(),key=lambda item: item[1]))
+    #get order fro form
     order = request.form.get('dec')
     if order == 'decO':
         order == False
-    priorities = {key: value for key,value in priorities.items() if value}
-    priorities = dict(sorted(priorities.items(),key=lambda item: item[1]))
-    print(f'order : {order}')
+    
+    #No of clusters from from
+    noOfClusters = request.form.get('nCluster')
     print(f"priorities = {priorities}")
+    print(f'order : {order}')
+    print(noOfClusters)
     
     if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes):
         # Process each priority column 
@@ -112,19 +120,24 @@ def uploadFileToClust():
         smallDf = mainDf.groupby(level=0).head(10)
     else:
         smallDf = mainDf.head(50)
-            
-    fReturn(app.config['df'].head(50),clustTable=smallDf, noOfColumns=noOfColumns,noOfRows=noOfRows)
+    
+    print("All done")
+    return fReturn(app.config['df'].head(50),clustTable=smallDf, noOfColumns=noOfColumns,noOfRows=noOfRows)
     
     
 def fReturn(table,clustTable=None, noOfCluster=None, quote=None, columns=None, noOfColumns=None,noOfRows =None):
-    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-        return {
-            "table": render_template("partials/data_table.html", table=table.to_html(classes="UploadedData", border=0),noOfCluster=noOfCluster),
-            "clustered" : render_template("partials/clustered_data.html", clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows= noOfRows)if clustTable !=None else '',
-            "quote": render_template("partials/priority_form.html", quote=quote, columns=columns)
-        }     
-    else:
-        return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfRows=noOfRows, noOfColumns=noOfColumns)
+    try:
+        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+            print("succes")
+            return {
+                "table": render_template("partials/data_table.html", table=table.to_html(classes="UploadedData", border=0), noOfColumns=len(app.config['df'].columns), noOfRows=len(app.config['df'].index)),
+                "clustered" : render_template("partials/clustered_data.html", clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows= noOfRows)if clustTable !=None else '',
+                "quote": render_template("partials/priority_form.html", quote=quote, columns=columns, noOfCluster=noOfCluster) if quote!=None else ''
+            }     
+    
+    except Exception as e:
+        print(f'error : {e}')
+    return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfRows=noOfRows, noOfColumns=noOfColumns)
 
 
 import re

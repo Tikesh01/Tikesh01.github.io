@@ -20,13 +20,21 @@
       </div>
     {% endfor %}
     </div>
-
+    {% if noOfCluster %}
+      <div id="divNCluster" style="width: 100%;display: flex; justify-content: center; gap: 0.7em">
+        <label for=""><strong>No of clusters:</strong></label>
+        <input type="number" name="nCluster" placeholder="e.g. 10">
+      </div>
+    {% else%}
+    {% endif %}
     <div id="button">
       <button type="reset" name="skipped"value="0">
         <i class="fas fa-forward" style="margin-right: 4px;"></i> reset
       </button>
-      <input type='checkbox' value="decO" name="dec" id="decc">
-      <label for="decc">Desending Order</label>
+      <div style="display: flex; justify-content: center; gap: 0.8em">
+        <label for="decc"><i class="fas fa-arrow-down"></i>Desending Order</label>
+        <input type='checkbox' value="decO" name="dec" id="decc">
+      </div>
       <button type="submit" name="done" value="">
         <i class="fas fa-project-diagram" style="margin-right: 4px;"></i> Cluster
       </button>

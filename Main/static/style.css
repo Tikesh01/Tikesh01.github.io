@@ -739,7 +739,7 @@ body, html {
     align-items: center;
   }
   
-  .question form input[type="number"] {
+  .question form input[type="number"], #dFileType {
     width: 5em;
     height: 2.5em;
     padding: 0.5em;
@@ -820,7 +820,7 @@ body, html {
     max-width: 500px;
   }
   
-  .upload-section, .question {
+  .upload-section, .middle {
     width: 70%;
   }
 }
@@ -845,7 +845,7 @@ body, html {
     padding: 1rem;
   }
   
-  .upload-section, .question {
+  .upload-section, .middle {
     width: 85%;
     padding: 2rem;
   }
@@ -898,7 +898,7 @@ body, html {
     gap: 1.5rem;
   }
   
-  .upload-section, .question {
+  .upload-section, .middle {
     width: 95%;
     padding: 1.5rem;
     margin: 2rem auto;
