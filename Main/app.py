@@ -84,7 +84,7 @@ def uploadFileToClust():
     
     if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes):
         # Process each priority column 
-        mainDf = cluster_based_quantum_sort(mainDf, priorities.keys(), noOfClusters if noOfClusters else None )
+        mainDf = cluster_based_quantum_sort(mainDf, priorities.keys(), noOfClusters if noOfClusters else None,order=order)
             
     else:
         colTypes = detectColumns(mainDf, priorities.keys())
@@ -95,11 +95,11 @@ def uploadFileToClust():
             if colTypes[i] != None:
                 if colTypes[i] == 'yearOnly':
                     yearOnly = True
-                    mainDf = clusterDateTimeCol(mainDf, i,1)
+                    mainDf = clusterDateTimeCol(mainDf, i,1, ascending=order)
                 elif colTypes[i] == 'dateOnly':
-                    mainDf = clusterDateTimeCol(mainDf,i,2)
+                    mainDf = clusterDateTimeCol(mainDf,i,2,ascending=order)
                 elif colTypes[i] == 'dateAndTime':
-                    mainDf = clusterDateTimeCol(mainDf, i, 3)
+                    mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=order)
                 elif colTypes[i] == 'rollNo':
                     pass
                 elif colTypes[i] == 'id':
@@ -509,7 +509,7 @@ def quantum_sort_cluster(cluster_df, sort_column):
     print(f"quantum_sort_cluster time = {et -st}")
     return df.iloc[sorted_indices].reset_index(drop=True)
 
-def cluster_based_quantum_sort(df, Pcols, n_clusters=None, i=0, j=0):
+def cluster_based_quantum_sort(df, Pcols, n_clusters=None, i=0, order =True):
     if i >= len(Pcols):
         return df
 
@@ -539,16 +539,16 @@ def cluster_based_quantum_sort(df, Pcols, n_clusters=None, i=0, j=0):
         sorted_cluster = quantum_sort_cluster(cluster_df, sort_column)
 
         # Recursively sort the next column (if available)
-        next_sorted_cluster = cluster_based_quantum_sort(pd.DataFrame(sorted_cluster), Pcols, i=i+1, j=j+1)
+        next_sorted_cluster = cluster_based_quantum_sort(pd.DataFrame(sorted_cluster), Pcols, i=i+1)
         all_sorted.append(next_sorted_cluster)
 
         print(f"  ✓ Completed Cluster {cluster_id}")
 
     # Merge and sort by current column
     merged_df = pd.concat(all_sorted, ignore_index=True)
-    final_sorted_df = merged_df.sort_values(by=sort_column).reset_index(drop=True)
+    final_sorted_df = merged_df.sort_values(by=sort_column,ascending=order).reset_index(drop=True)
 
-    end_time = time.time()
+    end_time = time.time() 
     # print(f"✔ Level {i} sorting by '{sort_column}' completed in {end_time - start_time:.2f} seconds")
 
     return final_sorted_df
