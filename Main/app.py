@@ -356,7 +356,7 @@ def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     print("Multicalled")
     return dataFrame
 
-def get_last_indices_of_each_year(date_series, YearOnly=False, acs=True):
+def get_last_indices_of_each_year(date_series, YearOnly=False):
     
     # data_series = data_series.apply(pd.to_numeric, errors='coerce').astype('Int64')
     if YearOnly == True:
