@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from jinja2 import Environment
 import io
+import openpyxl
 
 app = Flask(__name__)
 env = Environment(autoescape=True)
@@ -37,23 +38,21 @@ def getFile():
 def detectType(type,filePath,fileName):
     if type == "csv":
         df = pd.read_csv(filePath)
-        os.remove(filePath)
-        app.config['df'] =  df.dropna(how="all")
-        columns = df.columns
-        if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in df.dtypes):
+    elif type == "xls" or "xlsx":
+        df = pd.read_excel(filePath)
+    elif type == "sql":
+        pass
+    elif type == "json":
+        pass
+    os.remove(filePath)
+    app.config['df'] =  df.dropna(how="all")
+    columns = df.columns
+    if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in df.dtypes):
             print('AllNumaric')
             return fReturn(table=df.head(50),quote='yes',noOfCluster='yes', columns=columns)
-        else:
-            print('simple')
-            return fReturn(table=df.head(50),quote='yes', columns=columns)
-    if type == "xls" or "xlsx":
-        pass
-    if type == "sql":
-        pass
-    if type == "json":
-        pass
-    if type == "txt":
-        pass
+    else:
+        print('simple')
+        return fReturn(table=df.head(50),quote='yes', columns=columns)
 
 @app.route('/start', methods=["POST"])
 def uploadFileToClust():
@@ -72,9 +71,6 @@ def uploadFileToClust():
     priorities = dict(sorted(priorities.items(),key=lambda item: item[1]))
     #get order fro form
     order = request.form.get('dec')
-    if order == 'decO':
-        order == False
-    
     #No of clusters from from
     noOfClusters = request.form.get('nCluster')
         
@@ -95,11 +91,11 @@ def uploadFileToClust():
             if colTypes[i] != None:
                 if colTypes[i] == 'yearOnly':
                     yearOnly = True
-                    mainDf = clusterDateTimeCol(mainDf, i,1, ascending=order)
+                    mainDf = clusterDateTimeCol(mainDf, i,1, ascending= False if order == 'decO' else True )
                 elif colTypes[i] == 'dateOnly':
-                    mainDf = clusterDateTimeCol(mainDf,i,2,ascending=order)
+                    mainDf = clusterDateTimeCol(mainDf,i,2,ascending= False  if order == 'decO' else True)
                 elif colTypes[i] == 'dateAndTime':
-                    mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=order)
+                    mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=order  if order == 'decO' else True)
                 elif colTypes[i] == 'rollNo':
                     pass
                 elif colTypes[i] == 'id':
@@ -262,7 +258,6 @@ def clusterDateTimeCol(fContent, col,no,ascending=True):
             sample_vals = fContent[col].astype(str).str.strip().replace('0', np.nan).dropna()
             if len(sample_vals) == 0:
                 return fContent# All values are zero or empty-like
-            
             # Try parsing
             try:
                 parsed_col = pd.to_datetime(fContent[col], errors='raise')
@@ -271,12 +266,12 @@ def clusterDateTimeCol(fContent, col,no,ascending=True):
                
             if all(parsed_col.dt.time == pd.to_datetime('00:00:00').time()) and no == 2:  # Only date
                 fContent[col] = parsed_col
-                fContent = clean_and_sort_date_column(fContent, col, ascending)
+                fContent = clean_and_sort_date_column(fContent, col, ascending=ascending)
                 fContent = fContent.reset_index(drop=True)
                 # Replace original column with parsed datetime values
             elif no == 3:  # Date + time
                 fContent[col] = parsed_col
-                fContent = handle_datetime_column(fContent, col, ascending)
+                fContent = handle_datetime_column(fContent, col, ascending=ascending)
                 fContent = fContent.reset_index(drop=True)
         except Exception as e:
             return fContent # Not a datetime column
