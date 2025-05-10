@@ -5,6 +5,11 @@ import numpy as np
 from jinja2 import Environment
 import io
 import openpyxl
+from sklearn.cluster import KMeans
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+from qiskit_aer import AerSimulator, Aer
+from qiskit import QuantumCircuit, transpile
+import time
 
 app = Flask(__name__)
 env = Environment(autoescape=True)
@@ -87,15 +92,15 @@ def uploadFileToClust():
         print(colTypes)
         a = 0
         yearOnly = False
-        for i in priorities.keys():
-            if colTypes[i] != None:
-                if colTypes[i] == 'yearOnly':
+        for i in colTypes.keys():
+            if colTypes[i]['0'] != 100:
+                if colTypes[i]['0'] == 60:
                     yearOnly = True
                     mainDf = clusterDateTimeCol(mainDf, i,1, ascending= False if order == 'decO' else True )
-                elif colTypes[i] == 'dateOnly':
+                elif colTypes[i]['0'] == 30:
                     mainDf = clusterDateTimeCol(mainDf,i,2,ascending= False  if order == 'decO' else True)
-                elif colTypes[i] == 'dateAndTime':
-                    mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=order  if order == 'decO' else True)
+                elif colTypes[i]['0'] == 20:
+                    mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=False  if order == 'decO' else True)
                 elif colTypes[i] == 'rollNo':
                     pass
                 elif colTypes[i] == 'id':
@@ -137,46 +142,55 @@ def fReturn(table,clustTable=None, noOfCluster=None, quote=None, columns=None, n
 
 
 import re
+import math
 def detectColumns(df, prioColumns):
     result = {}    
     for col in prioColumns:
-        # Initialize result as 0 (unrecognized type)
-        result[col] = None
-        
+        qc =  QuantumCircuit(1,1)
         col_data = df[col]
         col_str = df[col].astype(str).str.strip()
-        
-        # 1. Check for Roll Numbers (type 4)
-        if pd.api.types.is_integer_dtype(col_data):
-            if check_roll_number(col_data):
-                result[col] = 'rollNo'
-                continue
-        
-        # 2. Check for Year values (type 1)
-        if check_year_values(col_data, col_str):
-            result[col] = 'yearOnly'
-            continue
-            
         # 3. Check for Date values (type 2)
         if check_date_format(col_str):
-            result[col] = 'dateOnly'
-            continue
-            
+            p = 0.70000
+                
         # 4. Check for DateTime values (type 3)
-        if check_datetime_format(col_str):
-            result[col] = 'dateAndTime'
-            continue
-        
-        if detectIdTypeCol(col_data):
-            result[col] = 'id'
-            continue
-        if OneOr2digitDetection(col_data):
-            result[col] = 'oneOr2Digit'
-            continue
-        else:
-            result[col] = detectSimpleDtypes(col_data)
+        elif check_datetime_format(col_str):
+            p = 0.800000
             
+        elif OneOr2digitDetection(col_data):
+            p = 0.100000
+        # 1. Check for Roll Numbers (type 4)
+        elif pd.api.types.is_numeric_dtype(col_data):
+            p = 0.2000
+            # 2. Check for Year values (type 1)
+            if check_year_values(col_data):
+                p = 0.40000
+            elif check_roll_number(col_data):
+                p = 0.30000
+
+        elif pd.api.types.is_string_dtype(df[col]) or pd.api.types.is_object_dtype(df[col]):
+            p = 0.600000
+            if detectIdTypeCol(col_data):
+                p = 1
+        
+        angle = 2 * math.asin(math.sqrt(p))
+        qc.ry(angle, 0)
+        # Initialize result as 0 (unrecognized type)
+        result[col] = measurCir(qc,0)
+        
     return result
+
+
+def measurCir(i,j):
+    i.measure(j,j)
+    simulator = AerSimulator()
+    # Transpile & run
+    compiled = transpile(i, simulator)
+    r = simulator.run(compiled, shots=100000).result()
+    counts = r.get_counts()
+    for k,v in counts.items():
+        counts[k] = int(v/1000)
+    return counts
 
 def check_roll_number(col_data):
     try:
@@ -199,18 +213,24 @@ def check_roll_number(col_data):
         pass
     return False
 
-def check_year_values(col_data, col_str):
+def check_year_values(col_data):
+    if pd.api.types.is_string_dtype(col_data):
+        try:
+            col_data = pd.to_numeric(col_data)
+        except:
+            pass
     # Handle if column is numeric and looks like a year
-    if pd.api.types.is_integer_dtype(col_data) or pd.api.types.is_float_dtype(col_data):
+    if pd.api.types.is_numeric_dtype(col_data) or  pd.api.types.is_float_dtype(col_data) or  pd.api.types.is_integer_dtype(col_data):
         if col_data.dropna().empty == False:
             if pd.api.types.is_float_dtype(col_data):
             # Check if float values have only 2 decimal places
                 if col_data.dropna().apply(lambda x: round(x, 2) == x).all():
-                    if col_data.dropna().between(1800, 2100).all():
+                    if col_data.dropna().between(1800, 2050).all():
                         return True # Only year
             # For integer values
             elif col_data.dropna().between(1800, 2100).all():
                 True # Only year
+                
     return False
 
 def check_date_format(col_str):
@@ -318,12 +338,12 @@ def handle_datetime_column(df, column_name, ascending):
 def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     # Step 1: Get last indices of each year
     if yearOnly == True:
-        yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], True, asc)
+        yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], True)
     else: 
         if colType=="dateOnly" or colType == 'dateAndTime':
-            yearsWithLastIndex = get_last_indices_of_each_year(pd.to_datetime(dataFrame[colToCheck]),False, asc)
+            yearsWithLastIndex = get_last_indices_of_each_year(pd.to_datetime(dataFrame[colToCheck]),False)
         else:
-            yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], False, asc)
+            yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], False)
     if asc==False:
         yearsWithLastIndex = dict(reversed(list(yearsWithLastIndex.items())))
         
@@ -379,10 +399,6 @@ def get_last_indices_of_each_year(date_series, YearOnly=False):
     print("last index called")
     return last_indices
 
-from sklearn.cluster import KMeans
-from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
-from qiskit_aer import Aer
-import time
 
 # Cache for storing quantum circuits to avoid recreating them
 circuit_cache = {}
