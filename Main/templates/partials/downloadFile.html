@@ -1,11 +1,11 @@
 {% if clusteredData %}
   <div class="middle">
-    <h2 style="text-align: center; color: var(--primary);">Download Your Clustered File</h2>
+    <h2 style="text-align: center; color: var(--primary);">Download File</h2>
     <form action="/Download" method="post" enctype="multipart/form-data" id="downloadFile" style="width: 60%; margin: auto;">
       <div style="display: flex; justify-content: center; gap: 0.8em;  width: 100%; margin: 2em 0;">
         <label for="fileTypes">Choose Type:</label>
         <select name="fileTypes" id="dFileType">
-          <option value="csv">CSV</option>
+          <option value="csv"><i class="fas fa-file-csv"></i>CSV</option>
           <option value="excel">XLSX</option>
           <option value="json">JSON</option>
         </select>

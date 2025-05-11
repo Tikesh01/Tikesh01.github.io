@@ -874,9 +874,8 @@ body, html {
   .upload-section, .middle {
     width: 95%;
     padding: 1.5rem;
-    margin: 2rem auto;
+    margin: 2.2rem auto;
   }
-  
   .custom-file-upload {
     padding: 1rem 2rem;
   }
@@ -930,7 +929,12 @@ body, html {
   .hero-image img {
     max-width: 250px;
   }
-  
+  .middle{
+    width: 95%;
+    #downloadFile{
+      width: 100%;
+    }
+  }
   .upload-title {
     font-size: 1.5rem;
   }

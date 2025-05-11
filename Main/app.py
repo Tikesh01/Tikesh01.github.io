@@ -1,15 +1,16 @@
-from flask import Flask, render_template, request, send_file, make_response
 import os
-import pandas as pd
-import numpy as np
-from jinja2 import Environment
 import io
+import time
 import openpyxl
+import numpy as np
+import pandas as pd
+from jinja2 import Environment
 from sklearn.cluster import KMeans
-from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
 from qiskit_aer import AerSimulator, Aer
 from qiskit import QuantumCircuit, transpile
-import time
+from qiskit import QuantumCircuit, QuantumRegister, ClassicalRegister
+from flask import Flask, render_template, request, send_file, make_response
+
 
 app = Flask(__name__)
 env = Environment(autoescape=True)
@@ -28,7 +29,7 @@ def getFile():
     filePath = os.path.join("userFiles", file.filename)
     app.config['path'] = filePath
     nameOfFile = file.filename.split('.')
-    uploadedFileExtension = nameOfFile[len(nameOfFile)-1]
+    uploadedFileExtension = nameOfFile[len(nameOfFile)-1].lower()
     if uploadedFileExtension in listOfExtension:
         file.save(filePath)
         return detectType(uploadedFileExtension,filePath,file.filename)
@@ -46,9 +47,10 @@ def detectType(type,filePath,fileName):
     elif type == "xls" or "xlsx":
         df = pd.read_excel(filePath)
     elif type == "sql":
-        pass
+        df = pd.read_sql_table(filePath)
     elif type == "json":
-        pass
+        df = pd.read_json(filePath)
+        
     os.remove(filePath)
     app.config['df'] =  df.dropna(how="all")
     columns = df.columns
@@ -93,23 +95,23 @@ def uploadFileToClust():
         a = 0
         yearOnly = False
         for i in colTypes.keys():
-            if colTypes[i]['0'] != 100:
-                if colTypes[i]['0'] == 60:
+            if colTypes[i]['0'] != 100:#IF column has no type
+                if colTypes[i]['0'] == 60 or colTypes[i]['1'] == 40: # if column is type of year only
                     yearOnly = True
                     mainDf = clusterDateTimeCol(mainDf, i,1, ascending= False if order == 'decO' else True )
-                elif colTypes[i]['0'] == 30:
+                elif colTypes[i]['0'] == 30 or  colTypes[i]['1'] == 70:#if column is type of date only 
                     mainDf = clusterDateTimeCol(mainDf,i,2,ascending= False  if order == 'decO' else True)
-                elif colTypes[i]['0'] == 20:
+                elif colTypes[i]['0'] == 20 or  colTypes[i]['1'] == 80 :#if column is type of date and time 
                     mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=False  if order == 'decO' else True)
-                elif colTypes[i] == 'rollNo':
+                elif colTypes[i]['0'] == 70: #Roll no type
                     pass
-                elif colTypes[i] == 'id':
+                elif colTypes[i]['1']==100:#if it is of type id
                     pass
-                elif colTypes[i] == 'oneOr2Digit':
+                elif colTypes[i]['0']==90:#if it of type oneor2digit
                     pass
-                elif colTypes[i] == 'numeric' or colTypes[i] == 'allInt':
+                elif colTypes[i]['0'] == 80 or  colTypes[i]['1'] == 20 : #if it type of nemric
                     pass
-                elif colTypes[i] == 'str':
+                elif colTypes[i]['0'] == 40 or  colTypes[i]['1'] == 60 : #string or object
                     pass
                 if a== 0:#Multiindex only for first time
                     mainDf = multiIndex(mainDf,i,colTypes[i], yearOnly=yearOnly, asc=True if order==None else False)
@@ -123,7 +125,7 @@ def uploadFileToClust():
         smallDf = mainDf.head(50)
     
     print("All done")
-    return fReturn(app.config['df'].head(50),clustTable=smallDf, noOfColumns=noOfColumns,noOfRows=noOfRows)
+    return fReturn(app.config['df'].head(50),clustTable=smallDf, noOfColumns=noOfColumns,noOfRows=noOfRows,quote='yes')
     
     
 def fReturn(table,clustTable=None, noOfCluster=None, quote=None, columns=None, noOfColumns=None,noOfRows =None):
@@ -256,16 +258,6 @@ def OneOr2digitDetection(col_data):
         pass
     return False
 
-def detectSimpleDtypes(col_data):
-    if pd.api.types.is_integer_dtype(col_data):
-        return 'allInt'
-    if pd.api.types.is_float_dtype(col_data):
-        if col_data.isna().all()== False:
-            return 'numaric'
-    if pd.api.types.is_string_dtype(col_data) or pd.api.types.is_object_dtype(col_data):
-        return 'str'
-    return None
-
 def clusterDateTimeCol(fContent, col,no,ascending=True):
     if no ==1:
         # Try to detect and sort if the column is just year values
@@ -340,7 +332,7 @@ def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     if yearOnly == True:
         yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], True)
     else: 
-        if colType=="dateOnly" or colType == 'dateAndTime':
+        if (colType['0'] == 30 or  colType['1'] == 70) or (colType['0'] == 20 or  colType['1'] == 80):
             yearsWithLastIndex = get_last_indices_of_each_year(pd.to_datetime(dataFrame[colToCheck]),False)
         else:
             yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], False)
@@ -389,8 +381,9 @@ def get_last_indices_of_each_year(date_series, YearOnly=False):
             years = date_series.dt.year
             # Create a DataFrame with index
             df = pd.DataFrame({'year': years}, index=np.arange(len(date_series)))
+            print("Year Extracted")
         except:
-             #Create a DataFrame with index
+            #Create a DataFrame with index
             df = pd.DataFrame({'year': date_series}, index=np.arange(len(date_series)))
         
     # Get last index of each year group
