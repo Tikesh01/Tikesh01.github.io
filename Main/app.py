@@ -90,7 +90,7 @@ def uploadFileToClust():
             
     else:   
         colTypes = detectColumns(mainDf, priorities.keys())
-        mainDf = dataClean(colTypes=colTypes)
+        mainDf = dataClean(colTypes=colTypes,df=mainDf)
         print(colTypes)
         a = 0
         yearOnly = False
