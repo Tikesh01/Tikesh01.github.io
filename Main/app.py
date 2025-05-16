@@ -1,7 +1,6 @@
 import os
 import io
 import time
-import openpyxl
 import numpy as np
 import pandas as pd
 from jinja2 import Environment
@@ -89,8 +88,9 @@ def uploadFileToClust():
         # Process each priority column 
         mainDf = cluster_based_quantum_sort(mainDf, priorities.keys(), noOfClusters if noOfClusters else None,order=order)
             
-    else:
+    else:   
         colTypes = detectColumns(mainDf, priorities.keys())
+        mainDf = dataClean(colTypes=colTypes)
         print(colTypes)
         a = 0
         yearOnly = False
@@ -105,7 +105,7 @@ def uploadFileToClust():
                     mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=False  if order == 'decO' else True)
                 elif colTypes[i]['0'] == 70: #Roll no type
                     pass
-                elif colTypes[i]['1']==100:#if it is of type id
+                elif colTypes[i]['1']==50 or colTypes[i]['0']==50:#if it is of type id
                     pass
                 elif colTypes[i]['0']==90:#if it of type oneor2digit
                     pass
@@ -142,6 +142,35 @@ def fReturn(table,clustTable=None, noOfCluster=None, quote=None, columns=None, n
         print(f'error : {e}')
     return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfRows=noOfRows, noOfColumns=noOfColumns)
 
+def dataClean(df,colTypes):
+    for i in df.index[(df.isna().sum(axis=1)==len(df.columns))]:
+        df.drop(index=i, inplace=True)
+        
+    for i in colTypes.keys():
+        if df[i].isna().sum() >=len(df[i])-2:
+            df.drop(columns=[i],inplace=True)
+            continue
+        
+        if df[i].isna().sum() != 0:#IF column has no type
+                print(i)
+                if (colTypes[i]['0'] == 60 or colTypes[i]['1'] == 40): # if column is type of year only
+                    df[i] = df[i].fillna(2100)
+                elif colTypes[i]['0'] == 30 or  colTypes[i]['1'] == 70:#if column is type of date only 
+                    df[i] = df[i].fillna(pd.to_datetime('2030-01-01'))
+                elif colTypes[i]['0'] == 20 or  colTypes[i]['1'] == 80 :#if column is type of date and time 
+                    df[i]= df[i].fillna('2030-01-01')
+                elif colTypes[i]['0'] == 70 or colTypes[i]['1']==30: #Roll no type
+                    df[i] = df[i].fillna(000000)
+                elif colTypes[i]['1']==50 or colTypes[i]['0']==50:#if it is of type id 
+                    df[i]=df[i].fillna("Unknown")
+                elif colTypes[i]['0']==90 or colTypes[i]['1'] ==10:#if it of type oneor2digit
+                    df[i] = df[i].fillna(0)
+                elif colTypes[i]['0'] == 80 or  colTypes[i]['1'] == 20 : #if it type of nemric
+                    df[i]=df[i].fillna(0.0)
+                elif colTypes[i]['0'] == 40 or  colTypes[i]['1'] == 60 : #string or object
+                    df[i] = df[i].fillna('NULL-NAN')
+        continue
+    return df
 
 import re
 import math
@@ -173,7 +202,7 @@ def detectColumns(df, prioColumns):
         elif pd.api.types.is_string_dtype(df[col]) or pd.api.types.is_object_dtype(df[col]):
             p = 0.600000
             if detectIdTypeCol(col_data):
-                p = 1
+                p = 0.5000
         
         angle = 2 * math.asin(math.sqrt(p))
         qc.ry(angle, 0)
@@ -251,11 +280,13 @@ def detectIdTypeCol(col_data):
         return all(re.fullmatch(pattern, item) for item in col_data)
     
 def OneOr2digitDetection(col_data):
-    try:
-        if all(len(str(i))<=2 for i in col_data):
-            return True
-    except:
-        pass
+    non2Digit=0
+    for v  in col_data:
+        if len(str(v)) >= 2:
+            non2Digit=o=non2Digit+1
+    
+    if len(col_data)/2.2 > non2Digit:
+        return True
     return False
 
 def clusterDateTimeCol(fContent, col,no,ascending=True):
