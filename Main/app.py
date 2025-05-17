@@ -76,7 +76,10 @@ def uploadFileToClust():
     priorities = {key: value for key,value in priorities.items() if value}
     priorities = dict(sorted(priorities.items(),key=lambda item: item[1]))
     #get order fro form
+    asc = True
     order = request.form.get('dec')
+    if order == 'decO':
+        asc = False
     #No of clusters from from
     noOfClusters = request.form.get('nCluster')
         
@@ -98,17 +101,17 @@ def uploadFileToClust():
             if colTypes[i]['0'] != 100:#IF column has no type
                 if colTypes[i]['0'] == 60 or colTypes[i]['1'] == 40: # if column is type of year only
                     yearOnly = True
-                    mainDf = clusterDateTimeCol(mainDf, i,1, ascending= False if order == 'decO' else True )
+                    mainDf = clusterDateTimeCol(mainDf, i,1, ascending= asc)
                 elif colTypes[i]['0'] == 30 or  colTypes[i]['1'] == 70:#if column is type of date only 
-                    mainDf = clusterDateTimeCol(mainDf,i,2,ascending= False  if order == 'decO' else True)
+                    mainDf = clusterDateTimeCol(mainDf,i,2,ascending= asc)
                 elif colTypes[i]['0'] == 20 or  colTypes[i]['1'] == 80 :#if column is type of date and time 
-                    mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=False  if order == 'decO' else True)
-                elif colTypes[i]['0'] == 70: #Roll no type
-                    pass
+                    mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=asc )
+                elif colTypes[i]['0'] == 70 or colTypes[i]['1'] == 30: #Roll no type
+                    mainDf = sortRollCol(mainDf,i,asc)
                 elif colTypes[i]['1']==50 or colTypes[i]['0']==50:#if it is of type id
-                    pass
-                elif colTypes[i]['0']==90:#if it of type oneor2digit
-                    pass
+                    mainDf = sortRollCol(mainDf,i,asc)
+                elif colTypes[i]['0']==90 or colTypes[i]['1']==10:#if it of type oneor2digit
+                    mainDf = digitSorting(mainDf,i,asc)
                 elif colTypes[i]['0'] == 80 or  colTypes[i]['1'] == 20 : #if it type of nemric
                     pass
                 elif colTypes[i]['0'] == 40 or  colTypes[i]['1'] == 60 : #string or object
@@ -358,6 +361,41 @@ def handle_datetime_column(df, column_name, ascending):
 
     return df
 
+def sortRollCol(df, col, asc):
+    digits_df = df[col].astype(str).apply(lambda x: pd.Series(list(x)))
+    
+    digits_df['original_index'] = df.index
+    
+    sorted_digits_df = recursiveSort(digits_df)
+
+    # Use the sorted indices to reorder the original dataframe
+    if asc == False:
+        sorted_indices = reversed(sorted_digits_df['original_index'].values)
+        
+    else:
+        sorted_indices = sorted_digits_df['original_index'].values
+        
+    sorted_df = df.loc[sorted_indices].reset_index(drop=True)
+
+    return sorted_df
+
+def recursiveSort(df_digits, col=0):
+    if col >= int(len(df_digits.columns) - 1):  # exclude 'original_index' column
+        return df_digits
+
+    # Sort by the current digit column
+    df_digits = df_digits.sort_values(by=col, kind='stable', ignore_index=True)
+
+    # Group by current digit and recursively sort each group
+    result = []
+    for value, group in df_digits.groupby(col, sort=False):
+        sorted_group = recursiveSort(group.reset_index(drop=True), col + 1)
+        result.append(sorted_group)
+
+def digitSorting(df,col,asc):
+    df = df.sort_values(by=col,ascending=asc, ignore_index=True)
+    return df
+
 def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     # Step 1: Get last indices of each year
     if yearOnly == True:
@@ -460,7 +498,6 @@ def create_oracle(values, target_idx, num_qubits):
             oracle.x(i)
     circuit_cache[cache_key] = oracle
     et = time.time()
-    print(f"create_oracle time = {et-st}")
     return oracle
 
 def create_diffusion(num_qubits):
@@ -487,11 +524,9 @@ def create_diffusion(num_qubits):
         diffusion.h(qubit)
     circuit_cache[cache_key] = diffusion
     et = time.time()
-    print(f"create_diffusion = {et-st}")
     return diffusion
 
 def grover_find_min_index(values):
-    st = time.time()
     n = len(values)
     num_bits = max(1, int(np.ceil(np.log2(n))))
     min_idx = np.argmin(values)
@@ -518,13 +553,9 @@ def grover_find_min_index(values):
     result = backend.run(circuit, shots=1000).result()
     counts = result.get_counts()
     max_count_result = max(counts.items(), key=lambda x: x[1])[0]
-    et = time.time()
-    print(f" grover find min index time = {et -st}")
-
     return int(max_count_result, 2) % n
 
 def quantum_sort_cluster(cluster_df, sort_column):
-    st=time.time()
     if len(cluster_df) == 0:
         return cluster_df
     
@@ -540,8 +571,6 @@ def quantum_sort_cluster(cluster_df, sort_column):
         sorted_indices.append(actual_idx)
         remaining_indices.remove(actual_idx)
     
-    et=time.time()
-    print(f"quantum_sort_cluster time = {et -st}")
     return df.iloc[sorted_indices].reset_index(drop=True)
 
 def cluster_based_quantum_sort(df, Pcols, n_clusters=None, i=0, order =True):
@@ -554,7 +583,6 @@ def cluster_based_quantum_sort(df, Pcols, n_clusters=None, i=0, order =True):
         return df
 
     print(f'\nLevel {i}: Sorting by column "{sort_column}"')
-    start_time = time.time()
 
     # Perform clustering on the current sort_column
     clustering_data = df[[sort_column]]
@@ -568,7 +596,6 @@ def cluster_based_quantum_sort(df, Pcols, n_clusters=None, i=0, order =True):
 
     for cluster_id in unique_clusters:
         cluster_df = df[df['cluster'] == cluster_id].drop(columns=['cluster'])
-        print(f"  → Cluster {cluster_id} (size {len(cluster_df)})")
 
         # Sort this cluster
         sorted_cluster = quantum_sort_cluster(cluster_df, sort_column)
@@ -583,8 +610,6 @@ def cluster_based_quantum_sort(df, Pcols, n_clusters=None, i=0, order =True):
     merged_df = pd.concat(all_sorted, ignore_index=True)
     final_sorted_df = merged_df.sort_values(by=sort_column,ascending=order).reset_index(drop=True)
 
-    end_time = time.time() 
-    # print(f"✔ Level {i} sorting by '{sort_column}' completed in {end_time - start_time:.2f} seconds")
 
     return final_sorted_df
     
