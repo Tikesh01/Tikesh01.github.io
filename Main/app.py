@@ -403,14 +403,14 @@ def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     else: 
         if (colType['0'] == 30 or  colType['1'] == 70) or (colType['0'] == 20 or  colType['1'] == 80):
             yearsWithLastIndex = get_last_indices_of_each_year(pd.to_datetime(dataFrame[colToCheck]),False)
-        if (colType['0'] == 70 or  colType['1'] == 30):
-            yearsWithLastIndex =  get_last_indices_of_each_year(dataFrame[colToCheck],rol=True)
+        if(colType['1']==30 or colType['0']==70) or (colType['1'] ==50 or colType['0']==50):
+            yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck],False,True,asc=asc)
+            asc=True
         else:
             yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], False)
     if asc==False:
         yearsWithLastIndex = dict(reversed(list(yearsWithLastIndex.items())))
         
-    print(yearsWithLastIndex)
     nameOfGroups = list(yearsWithLastIndex.keys())
     last_indices = list(yearsWithLastIndex.values())
 
@@ -428,9 +428,10 @@ def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     
     # Step 4: Combine into one array
     outside = np.concatenate(list(objOfGroups.values()))
-    
-    # Step 5: Create inside index
     inside = np.arange(len(outside))
+        
+    print(outside)
+    # Step 5: Create inside index
     
     multi_index = pd.MultiIndex.from_arrays([outside, inside], names=["Group", "Sr No."])
     
@@ -439,14 +440,33 @@ def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     print("Multicalled")
     return dataFrame
 
-def get_last_indices_of_each_year(date_series, YearOnly=False,rol=False):
+def get_last_indices_of_each_year(date_series, YearOnly=False,rol=False, a=0.60,asc=True):
     
     # data_series = data_series.apply(pd.to_numeric, errors='coerce').astype('Int64')
+    if rol==True and findDuplicate(date_series).count() <=10:
+            df = pd.DataFrame({'year':date_series},index=np.arange(len(date_series))).astype(str)
+            df['half'] = df['year'].apply(lambda x: x[:round(len(str(x))*a)])
+            print(a)
+            last_indices =  df.groupby('half',).apply(lambda x: x.index[-1]).to_dict()
+            if asc ==False:
+                last_indices = dict(reversed(list(last_indices.items())))
+                
+            group_sizes = []
+            prev = -1
+            k=0
+            for i,idx in enumerate(last_indices.values()):
+                group_sizes.append(idx - prev)
+                prev = idx
+                if group_sizes[i]<= 15:
+                    k=k+1
+            if int(len(last_indices)*0.40)<=k and a>=0.10:
+                last_indices = get_last_indices_of_each_year(date_series,False,True,a=a-0.10, asc=asc)
+            return last_indices
     if YearOnly == True:
         print("yearOnly work")
         df = pd.DataFrame({'year': date_series}, index=np.arange(len(date_series)))
     
-    if YearOnly == False:
+    else:
         # Extract year
         try:
             years = date_series.dt.year
@@ -456,14 +476,16 @@ def get_last_indices_of_each_year(date_series, YearOnly=False,rol=False):
         except:
             #Create a DataFrame with index
             df = pd.DataFrame({'year': date_series}, index=np.arange(len(date_series)))
-    
+        
     # Get last index of each year group
     last_indices = df.groupby('year').apply(lambda x: x.index[-1]).to_dict()
         
     print("last index called")
     return last_indices
 
-
+def findDuplicate(series):
+    series = series[series.duplicated(keep=False)]
+    return series
 # Cache for storing quantum circuits to avoid recreating them
 circuit_cache = {}
 
