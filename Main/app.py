@@ -404,7 +404,7 @@ def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     else: 
         if (colType['0'] == 30 or  colType['1'] == 70) or (colType['0'] == 20 or  colType['1'] == 80):
             yearsWithLastIndex = get_last_indices_of_each_year(pd.to_datetime(dataFrame[colToCheck]),False)
-        if(colType['1']==30 or colType['0']==70) or (colType['1'] ==50 or colType['0']==50):
+        elif(colType['1']==30 or colType['0']==70) or (colType['1'] ==50 or colType['0']==50):
             yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck],False,True,asc=asc)
             asc=True
         else:
