@@ -113,7 +113,8 @@ def uploadFileToClust():
                 elif colTypes[i]['0']==90 or colTypes[i]['1']==10:#if it of type oneor2digit
                     mainDf = digitSorting(mainDf,i,asc)
                 elif colTypes[i]['0'] == 80 or  colTypes[i]['1'] == 20 : #if it type of nemric
-                    pass
+                    mainDf.sort_values(by=i,ignore_index=True,ascending =asc)
+                    colTypes[i] =  ''
                 elif colTypes[i]['0'] == 40 or  colTypes[i]['1'] == 60 : #string or object
                     pass
                 if a== 0:#Multiindex only for first time
@@ -163,7 +164,7 @@ def dataClean(df,colTypes):
                 elif colTypes[i]['0'] == 20 or  colTypes[i]['1'] == 80 :#if column is type of date and time 
                     df[i]= df[i].fillna('2030-01-01')
                 elif colTypes[i]['0'] == 70 or colTypes[i]['1']==30: #Roll no type
-                    df[i] = df[i].fillna(000000)
+                    pass
                 elif colTypes[i]['1']==50 or colTypes[i]['0']==50:#if it is of type id 
                     df[i]=df[i].fillna("Unknown")
                 elif colTypes[i]['0']==90 or colTypes[i]['1'] ==10:#if it of type oneor2digit
@@ -213,7 +214,6 @@ def detectColumns(df, prioColumns):
         result[col] = measurCir(qc,0)
         
     return result
-
 
 def measurCir(i,j):
     i.measure(j,j)
