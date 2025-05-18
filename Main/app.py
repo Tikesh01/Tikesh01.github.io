@@ -158,7 +158,7 @@ def dataClean(df,colTypes):
         if df[i].isna().sum() != 0:#IF column has no type
                 print(i)
                 if (colTypes[i]['0'] == 60 or colTypes[i]['1'] == 40): # if column is type of year only
-                    df[i] = df[i].fillna(2100)
+                    df[i] = df[i].fillna(2099)
                 elif colTypes[i]['0'] == 30 or  colTypes[i]['1'] == 70:#if column is type of date only 
                     df[i] = df[i].fillna(pd.to_datetime('2030-01-01'))
                 elif colTypes[i]['0'] == 20 or  colTypes[i]['1'] == 80 :#if column is type of date and time 
@@ -166,7 +166,7 @@ def dataClean(df,colTypes):
                 elif colTypes[i]['0'] == 70 or colTypes[i]['1']==30: #Roll no type
                     pass
                 elif colTypes[i]['1']==50 or colTypes[i]['0']==50:#if it is of type id 
-                    df[i]=df[i].fillna("Unknown")
+                    df[i]=df[i].fillna("NAN-123-00")
                 elif colTypes[i]['0']==90 or colTypes[i]['1'] ==10:#if it of type oneor2digit
                     df[i] = df[i].fillna(0)
                 elif colTypes[i]['0'] == 80 or  colTypes[i]['1'] == 20 : #if it type of nemric
@@ -486,6 +486,8 @@ def get_last_indices_of_each_year(date_series, YearOnly=False,rol=False, a=0.60,
 def findDuplicate(series):
     series = series[series.duplicated(keep=False)]
     return series
+
+
 # Cache for storing quantum circuits to avoid recreating them
 circuit_cache = {}
 

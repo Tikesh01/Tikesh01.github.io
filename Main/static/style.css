@@ -596,6 +596,7 @@ body, html {
       border: 2px solid black;
       border-radius: 12px;
       padding: 0.1em 0.1em;
+      font-family: Lato, -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", Segoe UI Symbol;
     }
   }
   /* Enhanced Table Styling */
@@ -613,10 +614,10 @@ body, html {
 .UploadedData thead th, .UploadedClusteredData thead th {
   background-color: #3498db;
   color: #ffffff;
-  font-size: 1rem;
+  font-size: 0.8rem;
   font-weight: 600;
   padding: 0.3em;
-  border: 1px solid black;
+  border: 1px solid rgb(91, 91, 91);
   text-align: center;
 }
 
@@ -624,10 +625,10 @@ body, html {
 .UploadedData tbody td, .UploadedClusteredData tbody td {
   padding: 0.2em;
   text-align: center;
-  font-size: 0.95rem;
+  font-size: 0.76rem;
   color: #333;
   border-bottom: 1px solid #eeeeee;
-  border: 1px solid black;
+  border: 1px solid rgb(92, 92, 92);
 
 }
 
