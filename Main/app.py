@@ -84,7 +84,7 @@ def uploadFileToClust():
     noOfClusters = request.form.get('nCluster')
         
     print(f"priorities = {priorities}")
-    print(f'order : {order}')
+    print(f'ascending : {asc}')
     print(noOfClusters)
     
     if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes):
@@ -97,6 +97,7 @@ def uploadFileToClust():
         print(colTypes)
         a = 0
         yearOnly = False
+        multIndex=True
         for i in colTypes.keys():
             if colTypes[i]['0'] != 100:#IF column has no type
                 if colTypes[i]['0'] == 60 or colTypes[i]['1'] == 40: # if column is type of year only
@@ -113,11 +114,11 @@ def uploadFileToClust():
                 elif colTypes[i]['0']==90 or colTypes[i]['1']==10:#if it of type oneor2digit
                     mainDf = digitSorting(mainDf,i,asc)
                 elif colTypes[i]['0'] == 80 or  colTypes[i]['1'] == 20 : #if it type of nemric
-                    mainDf.sort_values(by=i,ignore_index=True,ascending =asc)
-                    colTypes[i] =  ''
+                    mainDf= mainDf.sort_values(by=i,ignore_index=True,ascending =asc)
+                    multIndex =False
                 elif colTypes[i]['0'] == 40 or  colTypes[i]['1'] == 60 : #string or object
                     pass
-                if a== 0:#Multiindex only for first time
+                if a== 0 and multIndex==True:#Multiindex only for first time
                     mainDf = multiIndex(mainDf,i,colTypes[i], yearOnly=yearOnly, asc=True if order==None else False)
                 a+=1
     app.config['mainDf'] = mainDf
@@ -170,7 +171,7 @@ def dataClean(df,colTypes):
                 elif colTypes[i]['0']==90 or colTypes[i]['1'] ==10:#if it of type oneor2digit
                     df[i] = df[i].fillna(0)
                 elif colTypes[i]['0'] == 80 or  colTypes[i]['1'] == 20 : #if it type of nemric
-                    df[i]=df[i].fillna(0.0)
+                    df[i]=df[i].fillna(0)
                 elif colTypes[i]['0'] == 40 or  colTypes[i]['1'] == 60 : #string or object
                     df[i] = df[i].fillna('NULL-NAN')
         continue
