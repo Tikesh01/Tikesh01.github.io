@@ -1,4 +1,4 @@
-{% if quote %}
+{% if quote or clusteredData%}
 <div class="middle" id="priority">
   <h3>
     <i class="fas fa-layer-group" style="margin-right: 6px; color: #34495e;"></i>
@@ -12,7 +12,7 @@
     </h4>
     <div id="askForPrio">
     {% for i in columns %}
-      <div style="margin: 0.6em 0;" id="inputField">
+      <div style="margin: 0.6em 0; display: flex;" id="inputField">
         <label style="margin-right: 0.5em; font-weight: 600;">
           <i class="fas fa-columns" style="margin-right: 4px; color: #7f8c8d;"></i> {{i}}:
         </label>

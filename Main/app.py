@@ -107,7 +107,7 @@ def uploadFileToClust():
                 elif colTypes[i]['0'] == 20 or  colTypes[i]['1'] == 80 :#if column is type of date and time 
                     mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=asc )
                 elif colTypes[i]['0'] == 70 or colTypes[i]['1'] == 30: #Roll no type
-                    mainDf = sortRollCol(mainDf,i,asc)
+                    mainDf = sortRollCol(mainDf,i,asc,)
                 elif colTypes[i]['1']==50 or colTypes[i]['0']==50:#if it is of type id
                     mainDf = sortRollCol(mainDf,i,asc)
                 elif colTypes[i]['0']==90 or colTypes[i]['1']==10:#if it of type oneor2digit
@@ -128,7 +128,7 @@ def uploadFileToClust():
         smallDf = mainDf.head(50)
     
     print("All done")
-    return fReturn(app.config['df'].head(50),clustTable=smallDf, noOfColumns=noOfColumns,noOfRows=noOfRows,quote='yes')
+    return fReturn(app.config['df'].head(50),clustTable=smallDf, noOfColumns=noOfColumns,noOfRows=noOfRows,quote='yes',columns=columns)
     
     
 def fReturn(table,clustTable=None, noOfCluster=None, quote=None, columns=None, noOfColumns=None,noOfRows =None):
@@ -136,8 +136,8 @@ def fReturn(table,clustTable=None, noOfCluster=None, quote=None, columns=None, n
         if request.headers.get("X-Requested-With") == "XMLHttpRequest":
             print("succes")
             return {
-                "table": render_template("partials/data_table.html", table=table.to_html(classes="UploadedData", border=0), noOfColumns=len(app.config['df'].columns), noOfRows=len(app.config['df'].index)),
-                "clustered" : render_template("partials/clustered_data.html", clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows= noOfRows)if clustTable !=None else '',
+                "table": render_template("partials/data_table.html", table=table.to_html(classes="UploadedData", border=0), noOfColumns=len(app.config['df'].columns), noOfRows=len(app.config['df'].index), columns=columns),
+                "clustered" : render_template("partials/clustered_data.html", clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows= noOfRows, columns=columns)if clustTable !=None else '',
                 "quote": render_template("partials/priority_form.html", quote=quote, columns=columns, noOfCluster=noOfCluster) if quote!=None else ''
             }     
     
@@ -361,19 +361,21 @@ def handle_datetime_column(df, column_name, ascending):
 
     return df
 
-def sortRollCol(df, col, asc):
+def digitSorting(df,col,asc):
+    df[col] = df[col].astype(str)
+    df = df.sort_values(by=col,ascending=asc, ignore_index=True)
+    return df
+
+def sortRollCol(df, col,asc):
     digits_df = df[col].astype(str).apply(lambda x: pd.Series(list(x)))
     
     digits_df['original_index'] = df.index
     
     sorted_digits_df = recursiveSort(digits_df)
 
-    # Use the sorted indices to reorder the original dataframe
+    sorted_indices = sorted_digits_df['original_index'].values
     if asc == False:
-        sorted_indices = reversed(sorted_digits_df['original_index'].values)
-        
-    else:
-        sorted_indices = sorted_digits_df['original_index'].values
+        sorted_indices = reversed(sorted_indices)
         
     sorted_df = df.loc[sorted_indices].reset_index(drop=True)
 
@@ -391,10 +393,8 @@ def recursiveSort(df_digits, col=0):
     for value, group in df_digits.groupby(col, sort=False):
         sorted_group = recursiveSort(group.reset_index(drop=True), col + 1)
         result.append(sorted_group)
-
-def digitSorting(df,col,asc):
-    df = df.sort_values(by=col,ascending=asc, ignore_index=True)
-    return df
+    
+    return pd.concat(result, ignore_index=True)
 
 def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     # Step 1: Get last indices of each year
@@ -403,6 +403,8 @@ def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     else: 
         if (colType['0'] == 30 or  colType['1'] == 70) or (colType['0'] == 20 or  colType['1'] == 80):
             yearsWithLastIndex = get_last_indices_of_each_year(pd.to_datetime(dataFrame[colToCheck]),False)
+        if (colType['0'] == 70 or  colType['1'] == 30):
+            yearsWithLastIndex =  get_last_indices_of_each_year(dataFrame[colToCheck],rol=True)
         else:
             yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], False)
     if asc==False:
@@ -437,7 +439,7 @@ def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     print("Multicalled")
     return dataFrame
 
-def get_last_indices_of_each_year(date_series, YearOnly=False):
+def get_last_indices_of_each_year(date_series, YearOnly=False,rol=False):
     
     # data_series = data_series.apply(pd.to_numeric, errors='coerce').astype('Int64')
     if YearOnly == True:
@@ -454,7 +456,7 @@ def get_last_indices_of_each_year(date_series, YearOnly=False):
         except:
             #Create a DataFrame with index
             df = pd.DataFrame({'year': date_series}, index=np.arange(len(date_series)))
-        
+    
     # Get last index of each year group
     last_indices = df.groupby('year').apply(lambda x: x.index[-1]).to_dict()
         
