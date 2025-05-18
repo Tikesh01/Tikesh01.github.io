@@ -285,7 +285,7 @@ def detectIdTypeCol(col_data):
 def OneOr2digitDetection(col_data):
     non2Digit=0
     for v  in col_data:
-        if len(str(v)) >= 2:
+        if len(str(v)) >= 2 and str(v)!='nan':
             non2Digit=o=non2Digit+1
     
     if len(col_data)/2.2 > non2Digit:
