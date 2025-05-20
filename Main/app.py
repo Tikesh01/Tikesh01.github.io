@@ -19,7 +19,7 @@ app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB
 def interface():
     return render_template('index.html')
 
-os.makedirs("userFiles", exist_ok=True)
+os.makedirs("QubitSort_User_Files", exist_ok=True)
 @app.route('/uploader', methods = ["POST"])
 def getFile():
     print("AJAX detected:", request.headers.get("X-Requested-With"))
@@ -58,7 +58,7 @@ def detectType(type,filePath,fileName):
             return fReturn(table=df.head(50),quote='yes',noOfCluster='yes', columns=columns)
     else:
         print('simple')
-        return fReturn(table=df.head(50),quote='yes', columns=columns)
+        return fReturn(table=df.head(50),quote='yes',columns=columns)
 
 @app.route('/start', methods=["POST"])
 def uploadFileToClust():
@@ -93,7 +93,7 @@ def uploadFileToClust():
             
     else:   
         colTypes = detectColumns(mainDf, priorities.keys())
-        mainDf = dataClean(colTypes=colTypes,df=mainDf)
+        mainDf = dataClean(mainDf,colTypes)
         print(colTypes)
         a = 0
         yearOnly = False
@@ -106,9 +106,9 @@ def uploadFileToClust():
                 elif colTypes[i]['0'] == 30 or  colTypes[i]['1'] == 70:#if column is type of date only 
                     mainDf = clusterDateTimeCol(mainDf,i,2,ascending= asc)
                 elif colTypes[i]['0'] == 20 or  colTypes[i]['1'] == 80 :#if column is type of date and time 
-                    mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=asc )
+                    mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=asc)
                 elif colTypes[i]['0'] == 70 or colTypes[i]['1'] == 30: #Roll no type
-                    mainDf = sortRollCol(mainDf,i,asc,)
+                    mainDf = sortRollCol(mainDf,i,asc)
                 elif colTypes[i]['1']==50 or colTypes[i]['0']==50:#if it is of type id
                     mainDf = sortRollCol(mainDf,i,asc)
                 elif colTypes[i]['0']==90 or colTypes[i]['1']==10:#if it of type oneor2digit
@@ -117,10 +117,11 @@ def uploadFileToClust():
                     mainDf= mainDf.sort_values(by=i,ignore_index=True,ascending =asc)
                     multIndex =False
                 elif colTypes[i]['0'] == 40 or  colTypes[i]['1'] == 60 : #string or object
-                    pass
+                    mainDf = cluster_text_column(df=mainDf, column_name=i)
                 if a== 0 and multIndex==True:#Multiindex only for first time
-                    mainDf = multiIndex(mainDf,i,colTypes[i], yearOnly=yearOnly, asc=True if order==None else False)
+                    mainDf = multiIndex(mainDf,i,colTypes[i], yearOnly=yearOnly, asc=asc)
                 a+=1
+                
     app.config['mainDf'] = mainDf
     arrOfGroupNames = mainDf.index.get_level_values(0).unique() if isinstance(mainDf.index, pd.MultiIndex) else []
 
@@ -129,9 +130,10 @@ def uploadFileToClust():
     else:
         smallDf = mainDf.head(50)
     
+    noOfColumns = len(mainDf.columns)
+    noOfRows = len(mainDf.index)
     print("All done")
     return fReturn(app.config['df'].head(50),clustTable=smallDf, noOfColumns=noOfColumns,noOfRows=noOfRows,quote='yes',columns=columns)
-    
     
 def fReturn(table,clustTable=None, noOfCluster=None, quote=None, columns=None, noOfColumns=None,noOfRows =None):
     try:
@@ -145,15 +147,16 @@ def fReturn(table,clustTable=None, noOfCluster=None, quote=None, columns=None, n
     
     except Exception as e:
         print(f'error : {e}')
-    return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfRows=noOfRows, noOfColumns=noOfColumns)
+    return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfRows=noOfRows, noOfColumns=noOfColumns,columns=columns)
 
 def dataClean(df,colTypes):
     for i in df.index[(df.isna().sum(axis=1)==len(df.columns))]:
-        df.drop(index=i, inplace=True)
+        df= df.drop(index=i, inplace=True)
         
     for i in colTypes.keys():
         if df[i].isna().sum() >=len(df[i])-2:
-            df.drop(columns=[i],inplace=True)
+            df = df.drop(columns=[i],inplace=True)
+            print(i,' droped')
             continue
         
         if df[i].isna().sum() != 0:#IF column has no type
@@ -174,6 +177,10 @@ def dataClean(df,colTypes):
                     df[i]=df[i].fillna(0)
                 elif colTypes[i]['0'] == 40 or  colTypes[i]['1'] == 60 : #string or object
                     df[i] = df[i].fillna('NULL-NAN')
+            
+        elif len(set(df[i]))==1:
+            for k in range(2):
+                df[i].at[k]="Changed For better Clustering"
         continue
     return df
 
@@ -193,7 +200,7 @@ def detectColumns(df, prioColumns):
         elif check_datetime_format(col_str):
             p = 0.800000
             
-        elif OneOr2digitDetection(col_data):
+        elif OneOr2digitDetection(col_data) and detectIdTypeCol(col_data)==False:
             p = 0.100000
         # 1. Check for Roll Numbers (type 4)
         elif pd.api.types.is_numeric_dtype(col_data):
@@ -264,7 +271,7 @@ def check_year_values(col_data):
                         return True # Only year
             # For integer values
             elif col_data.dropna().between(1800, 2100).all():
-                True # Only year
+                return True # Only year
                 
     return False
 
@@ -286,7 +293,7 @@ def detectIdTypeCol(col_data):
 def OneOr2digitDetection(col_data):
     non2Digit=0
     for v  in col_data:
-        if len(str(v)) >= 2 and str(v)!='nan':
+        if len(str(v)) > 2 and str(v)!='nan':
             non2Digit=o=non2Digit+1
     
     if len(col_data)/2.2 > non2Digit:
@@ -394,43 +401,112 @@ def recursiveSort(df_digits, col=0):
     for value, group in df_digits.groupby(col, sort=False):
         sorted_group = recursiveSort(group.reset_index(drop=True), col + 1)
         result.append(sorted_group)
+    try:
+        return pd.concat(result, ignore_index=True)
+    except:
+        return pd.DataFrame(data=result,index=np.arange(len(result)))
+
+from sentence_transformers import SentenceTransformer 
+from sklearn.metrics import silhouette_score
+def cluster_text_column(df: pd.DataFrame, column_name: str, k_min: int = 2, k_max: int = 40, plot: bool = True) -> pd.DataFrame:
+    comments = df[column_name].dropna().astype(str).tolist()
+
+    # Sentence embeddings
+    model = SentenceTransformer('all-MiniLM-L6-v2')
+    X = model.encode(comments)
+
+    # Find the best number of clusters using silhouette scores
+    k_range1 = list(range(k_min, 11,2))
+    k_range2 = list(range(12,25,3))
+    k_range3 = list(range(28,40,4))
+    k_range= k_range1+k_range1+k_range2+k_range3
+    scores = silhouetteScores(k_range,X)
+    print(scores)
+    best_k_range =dict(sorted(scores.items(), key=lambda x: x[1], reverse=True)[:2])
+    print(best_k_range)
     
-    return pd.concat(result, ignore_index=True)
+    k_scores = {}
+    for i in best_k_range.keys():
+        best_k = silhouetteScores(list(range(int(i) - 1, int(i) + 2)), X)
+        max_k = max(best_k, key=best_k.get)
+        k_scores[int(max_k)] = best_k[max_k]
+        if best_k[max_k] == 1.0:
+            break
+
+    # Get the k with the highest silhouette score
+    final_k = max(k_scores, key=k_scores.get)
+    best_score = k_scores[final_k]
+
+    print(f"\nBest K: {final_k}, Highest Silhouette Score: {best_score:.4f}")
+
+    final_model = KMeans(n_clusters=final_k, random_state=42, n_init=20, max_iter=550)
+    final_labels = final_model.fit_predict(X)
+
+    # Create a copy of the original DataFrame and assign cluster labels
+    df_clustered = df.copy()
+    df_clustered["cluster_label"] = -1
+    df_clustered.loc[df[column_name].notna(), "cluster_label"] = final_labels
+    df_clustered = df_clustered.sort_values(by='cluster_label',ignore_index=True)
+    
+    return df_clustered
+
+def silhouetteScores(k_range,X):
+    if 1 in k_range: k_range.remove(1)
+    scores = {}
+    a=0
+    for k in k_range:
+        kmeans = KMeans(n_clusters=k, random_state=42, n_init="auto")
+        labels = kmeans.fit_predict(X)
+        score = silhouette_score(X, labels)
+        scores[k] = score
+        print(f"K={k}, Silhouette Score={score:.4f}")
+        if len(scores.values())>=2:
+            if list(scores.values())[a] > list(scores.values())[a+1] or len(set(list(scores.values())[-2:])) ==1:
+                return scores
+            a=a+1
+        
+    return scores
 
 def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
-    # Step 1: Get last indices of each year
+    # Step 1: Get last indices of each years
+    skip= False
     if yearOnly == True:
         yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], True)
     else: 
         if (colType['0'] == 30 or  colType['1'] == 70) or (colType['0'] == 20 or  colType['1'] == 80):
             yearsWithLastIndex = get_last_indices_of_each_year(pd.to_datetime(dataFrame[colToCheck]),False)
         elif(colType['1']==30 or colType['0']==70) or (colType['1'] ==50 or colType['0']==50):
-            yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck],False,True,asc=asc)
+            yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck],YearOnly=False,rol=True,asc=asc)
             asc=True
-        else:
+        elif(colType['1']==60 or colType['0']==40):
+            skip = True
+        else:   
             yearsWithLastIndex = get_last_indices_of_each_year(dataFrame[colToCheck], False)
-    if asc==False:
+    if asc==False and skip !=True:
         yearsWithLastIndex = dict(reversed(list(yearsWithLastIndex.items())))
-        
-    nameOfGroups = list(yearsWithLastIndex.keys())
-    last_indices = list(yearsWithLastIndex.values())
+    if skip ==False:   
+        nameOfGroups = list(yearsWithLastIndex.keys())
+        last_indices = list(yearsWithLastIndex.values())
 
-    # Step 2: Compute counts from last indices
-    group_sizes = []
-    prev = -1
-    for idx in last_indices:
-        group_sizes.append(idx - prev)
-        prev = idx
-    print(group_sizes)
-    # Step 3: Create array per group
-    objOfGroups = {
-        f'key{i}': np.array([f'Group of {year}'] * group_sizes[i]) for i, year in enumerate(nameOfGroups)
-    }
+        # Step 2: Compute counts from last indices
+        group_sizes = []
+        prev = -1
+        for idx in last_indices:
+            group_sizes.append(idx - prev)
+            prev = idx
+        print(group_sizes)
+        # Step 3: Create array per group
+        objOfGroups = {
+            f'key{i}': np.array([f'Group of {year}'] * group_sizes[i]) for i, year in enumerate(nameOfGroups)
+        }
     
-    # Step 4: Combine into one array
-    outside = np.concatenate(list(objOfGroups.values()))
+        # Step 4: Combine into one array
+        outside = np.concatenate(list(objOfGroups.values()))
+    else:
+        outside = np.array(dataFrame['cluster_label'])
+    
     inside = np.arange(len(outside))
-        
+
     print(outside)
     # Step 5: Create inside index
     
@@ -440,11 +516,11 @@ def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     dataFrame.set_index(multi_index,inplace=True,)
     print("Multicalled")
     return dataFrame
-
-def get_last_indices_of_each_year(date_series, YearOnly=False,rol=False, a=0.60,asc=True):
+    
+def get_last_indices_of_each_year(date_series, YearOnly=False,rol=False, a=0.6,asc=True):
     
     # data_series = data_series.apply(pd.to_numeric, errors='coerce').astype('Int64')
-    if rol==True and findDuplicate(date_series).count() <=10:
+    if rol==True and findDuplicate(date_series) <=10:
             df = pd.DataFrame({'year':date_series},index=np.arange(len(date_series))).astype(str)
             df['half'] = df['year'].apply(lambda x: x[:round(len(str(x))*a)])
             print(a)
@@ -460,8 +536,9 @@ def get_last_indices_of_each_year(date_series, YearOnly=False,rol=False, a=0.60,
                 prev = idx
                 if group_sizes[i]<= 15:
                     k=k+1
-            if int(len(last_indices)*0.40)<=k and a>=0.10:
-                last_indices = get_last_indices_of_each_year(date_series,False,True,a=a-0.10, asc=asc)
+            print()
+            if round(len(last_indices)*0.45)<=k and a>=0.20:
+                last_indices = get_last_indices_of_each_year(date_series,False,True,a=round(a-0.10,ndigits=3), asc=asc)
             return last_indices
     if YearOnly == True:
         print("yearOnly work")
@@ -477,6 +554,7 @@ def get_last_indices_of_each_year(date_series, YearOnly=False,rol=False, a=0.60,
         except:
             #Create a DataFrame with index
             df = pd.DataFrame({'year': date_series}, index=np.arange(len(date_series)))
+            print("normal")
         
     # Get last index of each year group
     last_indices = df.groupby('year').apply(lambda x: x.index[-1]).to_dict()
@@ -486,7 +564,11 @@ def get_last_indices_of_each_year(date_series, YearOnly=False,rol=False, a=0.60,
 
 def findDuplicate(series):
     series = series[series.duplicated(keep=False)]
-    return series
+    half = set(series)
+    print(len(half))
+    if len(half)>=len( series)*0.30:
+        return 9
+    return 11
 
 
 # Cache for storing quantum circuits to avoid recreating them
