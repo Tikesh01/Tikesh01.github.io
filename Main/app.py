@@ -87,19 +87,17 @@ def uploadFileToClust():
     print(f'ascending : {asc}')
     print(noOfClusters)
     
-    try:
-        if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes):
-            # Process each priority column 
-            mainDf = cluster_based_quantum_sort(mainDf, priorities.keys(), noOfClusters if noOfClusters else None,order=order)
+  
+    if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes):
+        # Process each priority column 
+        mainDf = cluster_based_quantum_sort(mainDf, priorities.keys(), noOfClusters if noOfClusters else None,order=order)
                 
-        else:   
-            colTypes = detectColumns(mainDf, priorities.keys())
-            mainDf = dataClean(mainDf,colTypes)
-            print(colTypes)
-            mainDf = mainRecursiveSort(mainDf, priorityCols=list(priorities.keys()),colTypes=colTypes)
-            mainDf = multiIndex(dataFrame=mainDf,colToCheck=list(priorities.keys()[0]),colType= {next(iter(colTypes)): next(iter(colTypes.values()))})
-    except Exception as e:
-        fReturn(table=app.config['df'].head[50],error=e)
+    else:   
+        colTypes = detectColumns(mainDf, priorities.keys())
+        mainDf = dataClean(mainDf,colTypes)
+        print(colTypes)
+        mainDf = mainRecursiveSort(mainDf, priorityCols=list(priorities.keys()),colTypes=colTypes)
+        mainDf = multiIndex(dataFrame=mainDf,colToCheck=list(priorities.keys())[0],colType= next(iter(colTypes.values())))
        
     arrOfGroupNames = mainDf.index.get_level_values(0).unique() if isinstance(mainDf.index, pd.MultiIndex) else []
     print(arrOfGroupNames)
