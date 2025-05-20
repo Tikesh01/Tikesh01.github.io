@@ -827,5 +827,5 @@ def downLoadFile():
     return render_template("index.html", error="Invalid file type selected")
 
 if __name__ == "__main__":
-    app.run(debug = )
+    app.run(debug = False)
 
