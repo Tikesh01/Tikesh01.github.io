@@ -25,7 +25,7 @@ def getFile():
     print("AJAX detected:", request.headers.get("X-Requested-With"))
     listOfExtension = ["csv","xsl","sql","sqlquery","xlsx","json","txt"]
     file = request.files["file"]
-    filePath = os.path.join("userFiles", file.filename)
+    filePath = os.path.join("QubitSort_User_Files", file.filename)
     app.config['path'] = filePath
     nameOfFile = file.filename.split('.')
     uploadedFileExtension = nameOfFile[len(nameOfFile)-1].lower()
