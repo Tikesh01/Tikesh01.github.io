@@ -97,6 +97,7 @@ def uploadFileToClust():
             mainDf = dataClean(mainDf,colTypes)
             print(colTypes)
             mainDf = mainRecursiveSort(mainDf, priorityCols=list(priorities.keys()),colTypes=colTypes)
+            mainDf = multiIndex(dataFrame=mainDf,colToCheck=list(priorities.keys()[0]),colType= {next(iter(colTypes)): next(iter(colTypes.values()))})
     except Exception as e:
         fReturn(table=app.config['df'].head[50],error=e)
        
