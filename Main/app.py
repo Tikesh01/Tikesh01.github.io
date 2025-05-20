@@ -87,66 +87,85 @@ def uploadFileToClust():
     print(f'ascending : {asc}')
     print(noOfClusters)
     
-    if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes):
-        # Process each priority column 
-        mainDf = cluster_based_quantum_sort(mainDf, priorities.keys(), noOfClusters if noOfClusters else None,order=order)
-            
-    else:   
-        colTypes = detectColumns(mainDf, priorities.keys())
-        mainDf = dataClean(mainDf,colTypes)
-        print(colTypes)
-        a = 0
-        yearOnly = False
-        multIndex=True
-        for i in colTypes.keys():
-            if colTypes[i]['0'] != 100:#IF column has no type
-                if colTypes[i]['0'] == 60 or colTypes[i]['1'] == 40: # if column is type of year only
-                    yearOnly = True
-                    mainDf = clusterDateTimeCol(mainDf, i,1, ascending= asc)
-                elif colTypes[i]['0'] == 30 or  colTypes[i]['1'] == 70:#if column is type of date only 
-                    mainDf = clusterDateTimeCol(mainDf,i,2,ascending= asc)
-                elif colTypes[i]['0'] == 20 or  colTypes[i]['1'] == 80 :#if column is type of date and time 
-                    mainDf = clusterDateTimeCol(mainDf, i, 3, ascending=asc)
-                elif colTypes[i]['0'] == 70 or colTypes[i]['1'] == 30: #Roll no type
-                    mainDf = sortRollCol(mainDf,i,asc)
-                elif colTypes[i]['1']==50 or colTypes[i]['0']==50:#if it is of type id
-                    mainDf = sortRollCol(mainDf,i,asc)
-                elif colTypes[i]['0']==90 or colTypes[i]['1']==10:#if it of type oneor2digit
-                    mainDf = digitSorting(mainDf,i,asc)
-                elif colTypes[i]['0'] == 80 or  colTypes[i]['1'] == 20 : #if it type of nemric
-                    mainDf= mainDf.sort_values(by=i,ignore_index=True,ascending =asc)
-                    multIndex =False
-                elif colTypes[i]['0'] == 40 or  colTypes[i]['1'] == 60 : #string or object
-                    mainDf = cluster_text_column(df=mainDf, column_name=i)
-                if a== 0 and multIndex==True:#Multiindex only for first time
-                    mainDf = multiIndex(mainDf,i,colTypes[i], yearOnly=yearOnly, asc=asc)
-                a+=1
+    try:
+        if all(pd.api.types.is_numeric_dtype(dtype)  for dtype in mainDf.dtypes):
+            # Process each priority column 
+            mainDf = cluster_based_quantum_sort(mainDf, priorities.keys(), noOfClusters if noOfClusters else None,order=order)
                 
-    app.config['mainDf'] = mainDf
+        else:   
+            colTypes = detectColumns(mainDf, priorities.keys())
+            mainDf = dataClean(mainDf,colTypes)
+            print(colTypes)
+            mainDf = mainRecursiveSort(mainDf, priorityCols=list(priorities.keys()),colTypes=colTypes)
+    except Exception as e:
+        fReturn(table=app.config['df'].head[50],error=e)
+       
     arrOfGroupNames = mainDf.index.get_level_values(0).unique() if isinstance(mainDf.index, pd.MultiIndex) else []
-
+    print(arrOfGroupNames)
+    app.config['mainDf'] = mainDf
     if len(arrOfGroupNames) != 0:
-        smallDf = mainDf.groupby(level=0).head(10)
+        app.config['smallDf'] = mainDf.groupby(level=0).head(10)
     else:
-        smallDf = mainDf.head(50)
+        app.config['smallDf']= mainDf.head(50)
     
     noOfColumns = len(mainDf.columns)
     noOfRows = len(mainDf.index)
     print("All done")
-    return fReturn(app.config['df'].head(50),clustTable=smallDf, noOfColumns=noOfColumns,noOfRows=noOfRows,quote='yes',columns=columns)
-    
-def fReturn(table,clustTable=None, noOfCluster=None, quote=None, columns=None, noOfColumns=None,noOfRows =None):
+    return fReturn(app.config['df'].head(50),clustTable=app.config['smallDf'], noOfColumns=noOfColumns,noOfRows=noOfRows,quote='yes',columns=columns)
+
+def mainRecursiveSort(df, priorityCols, colTypes, level=0, asc=True, multIndex=True, yearOnly=False):
+    if level >= len(priorityCols):
+        return df
+
+    col = priorityCols[level]
+
+    if colTypes[col]['0'] != 100:  # column has type
+        if colTypes[col]['0'] == 60 or colTypes[col]['1'] == 40:
+            yearOnly = True
+            df = clusterDateTimeCol(df, col, 1, ascending=asc)
+        elif colTypes[col]['0'] == 30 or colTypes[col]['1'] == 70:
+            df = clusterDateTimeCol(df, col, 2, ascending=asc)
+        elif colTypes[col]['0'] == 20 or colTypes[col]['1'] == 80:
+            df = clusterDateTimeCol(df, col, 3, ascending=asc)
+        elif colTypes[col]['0'] == 70 or colTypes[col]['1'] == 30:
+            df = sortRollCol(df, col, asc)
+        elif colTypes[col]['1'] == 50 or colTypes[col]['0'] == 50:
+            df = sortRollCol(df, col, asc)
+        elif colTypes[col]['0'] == 90 or colTypes[col]['1'] == 10:
+            df = digitSorting(df, col, asc)
+        elif colTypes[col]['0'] == 80 or colTypes[col]['1'] == 20:
+            df = df.sort_values(by=col, ignore_index=True, ascending=asc)
+            multIndex = False
+        elif colTypes[col]['0'] == 40 or colTypes[col]['1'] == 60:
+            df = cluster_text_column(df=df, column_name=col)
+
+        # Apply MultiIndex if needed
+        if level == 0 and multIndex:
+            df = multiIndex(df, col, colTypes[col], yearOnly=yearOnly, asc=asc)
+
+        # Recurse: sort within each group of this column
+        if isinstance(df.index, pd.MultiIndex):
+            grouped = [df.loc[group].copy() for group in df.index.get_level_values(0).unique()]
+            sorted_groups = [mainRecursiveSort(group, priorityCols, colTypes, level+1, asc, multIndex, yearOnly) for group in grouped]
+            df = pd.concat(sorted_groups).reset_index(drop=True)
+        else:
+            df = mainRecursiveSort(df, priorityCols, colTypes, level+1, asc, multIndex, yearOnly)
+
+    return df
+
+def fReturn(table,clustTable=None,error=None, noOfCluster=None, quote=None, columns=None, noOfColumns=None,noOfRows =None):
     try:
-        if request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            print("succes")
-            return {
-                "table": render_template("partials/data_table.html", table=table.to_html(classes="UploadedData", border=0), noOfColumns=len(app.config['df'].columns), noOfRows=len(app.config['df'].index), columns=columns),
-                "clustered" : render_template("partials/clustered_data.html", clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows= noOfRows, columns=columns)if clustTable !=None else '',
-                "quote": render_template("partials/priority_form.html", quote=quote, columns=columns, noOfCluster=noOfCluster) if quote!=None else ''
-            }     
+        if error == None:
+            if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+                print("succes")
+                return {
+                    "table": render_template("partials/data_table.html", table=table.to_html(classes="UploadedData", border=0), noOfColumns=len(app.config['df'].columns), noOfRows=len(app.config['df'].index), columns=columns),
+                    "clustered" : render_template("partials/clustered_data.html", clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfColumns=noOfColumns, noOfRows= noOfRows, columns=columns)if clustTable !=None else '',
+                    "quote": render_template("partials/priority_form.html", quote=quote, columns=columns, noOfCluster=noOfCluster) if quote!=None else ''
+                }     
     
     except Exception as e:
-        print(f'error : {e}')
+        print(f'error : {e}, {error}')
     return render_template("index.html", table=app.config['df'].head(50).to_html(classes="UploadedData", border=0), clusteredData=clustTable.to_html(classes="UploadedClusteredData", border=0), noOfRows=noOfRows, noOfColumns=noOfColumns,columns=columns)
 
 def dataClean(df,colTypes):
@@ -450,21 +469,49 @@ def cluster_text_column(df: pd.DataFrame, column_name: str, k_min: int = 2, k_ma
     
     return df_clustered
 
-def silhouetteScores(k_range,X):
-    if 1 in k_range: k_range.remove(1)
+def silhouetteScores(k_range, X):
+    if 1 in k_range:
+        k_range.remove(1)
     scores = {}
-    a=0
-    for k in k_range:
+    a = 0
+    index = 0
+    while index < len(k_range):
+        k = k_range[index]
+
         kmeans = KMeans(n_clusters=k, random_state=42, n_init="auto")
         labels = kmeans.fit_predict(X)
         score = silhouette_score(X, labels)
         scores[k] = score
         print(f"K={k}, Silhouette Score={score:.4f}")
-        if len(scores.values())>=2:
-            if list(scores.values())[a] > list(scores.values())[a+1] or len(set(list(scores.values())[-2:])) ==1:
-                return scores
-            a=a+1
+
+        # Check conditions and expand k_range dynamically
+        if len(scores.values()) >= 14 and all(x < 0.7 for x in scores.values()):
+            print("nye")
+            k_range = list(range(k + 6, 170, 6))
+            continue
         
+        if len(scores.values()) >= 10 and all(x < 0.48 for x in scores.values()):
+            print("kye")
+            k_range = list(range(k + 6, 112, 5))
+            continue
+        
+        if len(scores.values()) >= 7 and all(x < 0.32 for x in scores.values()):
+            print("bye")
+            k_range = list(range(k + 5, 90, 4))
+            continue
+        
+        if len(scores.values()) >= 2:
+            if all(x < 0.25 for x in scores.values()):
+                print("hii")
+                k_range = list(range(k + 4, 60, 3))
+                continue
+            values = list(scores.values())
+            if values[a] > values[a + 1] or len(set(values[-2:])) == 1:
+                return scores
+            
+            a += 1
+        index += 1
+    
     return scores
 
 def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
@@ -485,6 +532,8 @@ def multiIndex(dataFrame, colToCheck, colType, yearOnly = False, asc=True):
     if asc==False and skip !=True:
         yearsWithLastIndex = dict(reversed(list(yearsWithLastIndex.items())))
     if skip ==False:   
+        if yearsWithLastIndex == None or len(yearsWithLastIndex.items()) == 0:
+            return dataFrame
         nameOfGroups = list(yearsWithLastIndex.keys())
         last_indices = list(yearsWithLastIndex.values())
 
@@ -555,9 +604,11 @@ def get_last_indices_of_each_year(date_series, YearOnly=False,rol=False, a=0.6,a
             #Create a DataFrame with index
             df = pd.DataFrame({'year': date_series}, index=np.arange(len(date_series)))
             print("normal")
-        
+            
+    last_indices = {}        
+    if df['year'].nunique() != len(df['year']):
     # Get last index of each year group
-    last_indices = df.groupby('year').apply(lambda x: x.index[-1]).to_dict()
+        last_indices = df.groupby('year').apply(lambda x: x.index[-1]).to_dict()
         
     print("last index called")
     return last_indices
@@ -776,5 +827,5 @@ def downLoadFile():
     return render_template("index.html", error="Invalid file type selected")
 
 if __name__ == "__main__":
-    app.run(debug = True)
+    app.run(debug = )
 
