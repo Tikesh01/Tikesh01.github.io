@@ -19,16 +19,53 @@ body, html{
     background: linear-gradient(to left, rgb(0,0,0), rgb(30,30,30));
 }
 header{
-    height: 6em;;
+    
 }
-main{
-    padding: 2.5em 10em;
-    width: 100%;
+.container{
+    padding: 5em 9em;
     display: flex;
+    width: 98%;
     align-items: center;
     justify-content:space-between;
-    /* overflow: hidden; */
-    padding-bottom: 4em;
+}
+#proAndHandlesCont{
+    color: var(--accent);
+    height: 100%;
+    display: block;
+    #headingCont2{
+        display: flex;
+        justify-content: space-between;
+        gap: 1em;
+        margin: 2em 0;
+        h1{
+            
+        }
+        .cont2Design{
+            width: 70%;
+            border-bottom: var(--secondary) 0.5px solid;
+        }
+    }
+    
+    #proAndHandles{
+        display: flex;
+        gap: 2em;
+        height: 100%;
+        overflow: hidden;
+        .upperCard{
+            .card{
+                border: #F5F5DC 1px solid;
+                float: right;
+            }
+        }
+        #projects{
+           
+        }
+        #handles{
+        }
+    }
+}
+main{
+
     .heroCont{
         height: 100%;
         /* border: #333333 1px solid; */
@@ -96,7 +133,31 @@ main{
                 font-weight: lighter;
                 word-spacing: 0.4em;
                 letter-spacing: 0.09em;
+                font-size: 15px;
             }
+        }
+        /* contact links/buttons styling */
+        #contact{
+            margin-top: 1.5em;
+            display: flex;
+            flex-direction: row;
+            gap: 2em;
+        }
+        #contact a{
+            color: var(--accent);
+            text-decoration: none;
+            padding: 0.5em 1em;
+            border: 1px solid var(--secondary);
+            border-radius: 0.4em;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5em;
+            transition: background 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        }
+        #contact a:hover{
+            background: var(--secondary);
+            color: #000;
+            transform: translateY(-2px);
         }
     }
 
@@ -113,9 +174,9 @@ main{
             transform: rotate(30deg) translateY(-5px) scale(1.02);
         }
 
-        transform: rotate(30deg);
         #heroImgInnerCont{
             padding: 0 2em;
+            padding-right: 1em;
             background: #1f1f20;
             backdrop-filter: blur(10px); 
             -webkit-backdrop-filter: blur(10px); 
