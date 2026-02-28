@@ -1,0 +1,167 @@
+*{
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+:root{
+    --primary:  #333333;
+    --secondary: #FF8C00;
+    --accent: #F5F5DC; 
+}
+body, html{
+    font-family: "Roboto";
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat; /* Prevents the image from repeating */
+    background-size: cover;      /* Scales the image to cover the entire container */
+    background-position: center; 
+    background: #020403;
+    background: linear-gradient(to left, rgb(0,0,0), rgb(30,30,30));
+}
+header{
+    height: 6em;;
+}
+main{
+    padding: 2.5em 10em;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content:space-between;
+    /* overflow: hidden; */
+    padding-bottom: 4em;
+    .heroCont{
+        height: 100%;
+        /* border: #333333 1px solid; */
+        color: var(--accent);
+    }
+    #heroTextCont{
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1.5em;
+        max-width: 48%;
+        
+        #heroText{
+            font-size: 4em;
+            font-family: "Lavishly Yours";
+            color: var(--accent);
+            line-height: 1;
+            letter-spacing: 0.02em;
+            font-weight: 400;
+            margin: 0;
+            animation: wave 3s ease-in-out infinite;          /* subtle letter‑spacing wave */
+
+            &:hover {
+                text-shadow: 0 0 24px rgba(255,140,0,0.4);
+                transform: translateY(-3px);
+                transition: transform 0.3s ease, text-shadow 0.3s ease;
+            }
+
+            #name{
+                display: block;
+                color: var(--secondary);
+                font-family: "Roboto";
+                font-size: 1.2em;
+                font-style: italic;
+                font-weight: 500;
+                margin-top: 0.3em;
+                text-shadow: 0 2px 8px rgba(255,140,0,0.15);
+                transition: transform 0.3s ease;
+            }
+        }
+        
+        #role{
+            font-family: "Roboto";
+            font-weight: 400;
+            font-size: 1.1em;
+            color: rgba(245,245,220,0.85);
+            letter-spacing: 0.05em;
+            margin: 0;
+            padding-bottom: 1em;
+            border-bottom: 2px solid var(--secondary);
+            width: fit-content;
+            transition: all 0.3s ease;
+            animation: pulse 4s ease-in-out infinite;          
+            &:hover{
+                color: var(--secondary);
+                padding-bottom: 1.2em;
+            }
+        }
+        #aboutMeCont{
+            margin-top: 1em;
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            #aboutText{
+                font-weight: lighter;
+                word-spacing: 0.4em;
+                letter-spacing: 0.09em;
+            }
+        }
+    }
+
+    #heroImgCont{
+        padding: 0 0em 2em 2em;
+        border-radius: 1.5em;
+        border-left: rgba(165,163,163,0.611) 0.5px solid;
+        border-bottom: rgba(165,165,165,0.61) 0.5px solid;
+        box-shadow: 1px 0px 20px 20px rgba(24,24,24,0.321);
+        transform: rotate(30deg);
+        animation: floatImg 10s ease-in-out infinite;        /* slow float */
+
+        &:hover {
+            transform: rotate(30deg) translateY(-5px) scale(1.02);
+        }
+
+        transform: rotate(30deg);
+        #heroImgInnerCont{
+            padding: 0 2em;
+            background: #1f1f20;
+            backdrop-filter: blur(10px); 
+            -webkit-backdrop-filter: blur(10px); 
+            transform: rotate(-10deg);
+            overflow: hidden;
+            border-radius: 1.5em;
+            box-shadow: 1px 0px 20px 20px rgba(42, 41, 41, 0.321);
+            #heroImg{
+                height: 35em;
+                float: inline-end;
+                transform: rotate(-19deg);
+                margin-bottom: -2em;
+
+                
+            }
+        }
+    }
+}
+
+@keyframes floatText {
+    0%,100% { transform: translateY(0); }
+    50%     { transform: translateY(-8px); }
+}
+
+@keyframes wave {
+    0%,100% { letter-spacing: -0.02em; }
+    50%     { letter-spacing: 0.05em; }
+}
+
+@keyframes pulse {
+    0%,100% { opacity: 0.85; transform: scale(1); }
+    50%     { opacity: 1;    transform: scale(1.02); }
+}
+
+@keyframes floatImg {
+    0%,100% { transform: rotate(30deg) translateY(0); }
+    50%     { transform: rotate(30deg) translateY(-10px); }
+}
+
+/* keep your existing responsive media query, just ensure it comes after the above */
+@media (max-width: 768px){
+    #heroTextCont{
+        max-width: 100%;
+        gap: 1em;
+
+        #heroText{ font-size: 2.5em; }
+        #role{ font-size: 1em; }
+    }
+}
