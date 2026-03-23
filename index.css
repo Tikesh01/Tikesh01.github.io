@@ -95,7 +95,7 @@ main{
             gap: 1em;
             #aboutText{
                 font-weight: lighter;
-                word-spacing: 0.4em;
+                word-spacing: 0.25em;
                 letter-spacing: 0.09em;
                 font-size: 15px;
             }
@@ -365,18 +365,19 @@ main{
 
             #skills{
                 .skills-category{
-                    
-                    gap: 1.5em;
+                    gap: 0.7em !important;
                     i{
                         font-size: 2em;
                     }
                     .skill-list{
                         display: grid !important;
                         grid-template-columns: repeat(3,1fr);
-                        overflow: scroll;
                         width: 100%;
+                        margin-bottom: 1em;
+                        overflow: auto !important;
                         .skill-tag{
                             padding: 0.4em 0.6em;
+                            font-size: smaller ;
                         }
                     }
                 }
@@ -406,23 +407,14 @@ main{
             }
             #skills{
                 .skills-category{
-                    
-                    gap: 1.5em;
-                    i{
-                        font-size: 2em;
-                    }
                     .skill-list{
                         display: grid !important;
-                        grid-template-columns: repeat(3,1fr);
-                        overflow: scroll;
-                        width: 100%;
-                        .skill-tag{
-                            padding: 0.4em 0.6em;
-                        }
+                        grid-template-columns: repeat(2,1fr);
                     }
                 }
             }
         }
+        
     }
 }
 @media(max-width: 390px){
@@ -446,26 +438,6 @@ main{
         #headingCont2{
             .cont2Design{
                 width: 30%;
-            }
-        }
-        #proAndHandles{
-            #skills{
-                .skills-category{
-                    
-                    gap: 1.5em;
-                    i{
-                        font-size: 2em;
-                    }
-                    .skill-list{
-                        display: grid !important;
-                        grid-template-columns: repeat(3,1fr);
-                        overflow: scroll;
-                        width: 100%;
-                        .skill-tag{
-                            padding: 0.4em 0.6em;
-                        }
-                    }
-                }
             }
         }
     }
@@ -495,26 +467,6 @@ main{
         #headingCont2{
             .cont2Design{
                 width: 20%;
-            }
-        }
-        #proAndHandles{
-            #skills{
-                .skills-category{
-                    
-                    gap: 1.5em;
-                    i{
-                        font-size: 2em;
-                    }
-                    .skill-list{
-                        display: grid !important;
-                        grid-template-columns: repeat(3,1fr);
-                        overflow: scroll;
-                        width: 100%;
-                        .skill-tag{
-                            padding: 0.4em 0.6em;
-                        }
-                    }
-                }
             }
         }
     }
