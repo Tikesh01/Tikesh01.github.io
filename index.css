@@ -24,7 +24,33 @@ main{
 .container{
     padding: 5em 9em;
     width: 100%;
-    
+    color: white;
+    .card{
+        border: #9ca09b46 0.1px solid;
+        padding: 2em;
+        border-radius: 1.5em;
+        box-shadow: 2px 2px 15px 15px #33333344;
+        background: rgba(24,24,24,0.8);
+        display: flex;
+        flex-direction: column;
+        gap: 1em;
+        h3{
+            display: flex;
+            align-items: center;
+            font-weight: lighter;
+            gap: 0.5em;
+            i{
+                color: #706f6f;
+                border: 0.5px solid var(--accent);
+                border-radius: 50%;
+                padding: 0.7em 1.2em;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: small;
+            }
+        }
+    }
 }
 
 #heroSection{
@@ -179,22 +205,23 @@ main{
     0%,100% { transform: rotate(30deg) translateY(0); }
     50%     { transform: rotate(30deg) translateY(-10px); }
 }
+.headingCont{
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+    margin: 2em 0;
+    color: white;
+    margin-top: 1em;
+    
+    .cont2Design{
+        width: 70%;
+        border-bottom: var(--secondary) 0.5px solid;
+    }
+}
 #proAndHandlesSection{
     color: var(--accent);
     height: 100%;
     height: auto;
-
-    #headingCont2{
-        display: flex;
-        justify-content: space-between;
-        gap: 1em;
-        margin: 2em 0;
-       
-        .cont2Design{
-            width: 70%;
-            border-bottom: var(--secondary) 0.5px solid;
-        }
-    }
     
     #proAndHandles{
         display: grid;
@@ -205,32 +232,7 @@ main{
             width: 100%;
             height: 100%;
         }
-        .card{
-            border: #9ca09b46 0.1px solid;
-            padding: 2em;
-            border-radius: 1.5em;
-            box-shadow: 2px 2px 15px 15px #33333344;
-            background: rgba(24,24,24,0.8);
-            display: flex;
-            flex-direction: column;
-            gap: 1em;
-            h3{
-                display: flex;
-                align-items: center;
-                font-weight: lighter;
-                gap: 0.5em;
-                i{
-                    color: #706f6f;
-                    border: 0.5px solid var(--accent);
-                    border-radius: 50%;
-                    padding: 0.7em 1.2em;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: small;
-                }
-            }
-        }
+        
         #projects{
             .project-item {
                 background: #1d1c1c;
@@ -311,8 +313,8 @@ main{
                 }
             }
         }
-
     }
+
 }
 
 @media(max-width: 500px){
@@ -350,14 +352,14 @@ main{
             }
         }
     }
-    #proAndHandlesSection{
-        #headingCont2{
-            gap: 0.5em;
-            font-size: x-small;
-            .cont2Design{
-                width: 40%;
-            }
+    .headingCont{
+        gap: 0.5em;
+        font-size: x-small;
+        .cont2Design{
+            width: 40%;
         }
+    }
+    #proAndHandlesSection{
         #proAndHandles{
             display: flex;
             flex-direction: column;
